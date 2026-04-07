@@ -4,14 +4,14 @@
 #include<algorithm>
 #include <cassert>
 #include "geo.h"
-
+using namespace geo;
 namespace transport_catalogue {
 namespace main {
 
 void TransportCatalogue::AddBusRoute(Bus bus){
     Bus& bus_ref = buses_.emplace_back(std::move(bus));
     busname_to_bus_.insert({bus_ref.name, &bus_ref});
-    for(auto iter = bus_ref.route.begin(); iter != bus_ref.route.end(); ++iter){
+    for(auto iter = bus_ref.stops.begin(); iter != bus_ref.stops.end(); ++iter){
         stopname_to_bus_list_[(*iter)].insert(bus_ref.name);
     }
 }
@@ -40,17 +40,17 @@ const Bus* TransportCatalogue::FindRouteByName(std::string_view name) const{
 const Stop* TransportCatalogue::FindBusStopByName(std::string_view name) const {
     auto iter  = stopname_to_stop_.find(name);
     if(iter != stopname_to_stop_.end()){
-         return iter->second;
+        return iter->second;
     }
     return nullptr;
 }
 
-std::optional<BusInfo> TransportCatalogue::GetBusInfo(std::string_view name) const {
+std::optional<BusStat> TransportCatalogue::GetBusStat(std::string_view name) const {
     const Bus* bus = FindRouteByName(name);
     if(bus == nullptr){
         return std::nullopt;
     }
-    int stops_on_route = bus->route.size();
+    int stops_on_route = bus->stops.size();
     std::unordered_set<std::string_view> bus_set;
     const Stop * stop1 = nullptr;
     const Stop * stop2 = nullptr;
@@ -58,7 +58,7 @@ std::optional<BusInfo> TransportCatalogue::GetBusInfo(std::string_view name) con
     double route_distance=0;
     double geo_route_distance=0;
     double stop_distance=0;
-    for(std::string_view stop_name : bus->route){
+    for(std::string_view stop_name : bus->stops){
         bus_set.insert(stop_name);
         stop1 = stop2;
         stop2 = FindBusStopByName(stop_name);
@@ -71,10 +71,10 @@ std::optional<BusInfo> TransportCatalogue::GetBusInfo(std::string_view name) con
             if(real_dist.has_value()){
                 stop_distance = real_dist.value();
             }else{
-                stop_distance = ComputeDistance(stop1->coordinates, stop2->coordinates);
+                stop_distance = geo::ComputeDistance(stop1->coordinates, stop2->coordinates);
             }
 
-            geo_route_distance += ComputeDistance(stop1->coordinates, stop2->coordinates);
+            geo_route_distance += geo::ComputeDistance(stop1->coordinates, stop2->coordinates);
             route_distance += stop_distance;
         }else{
             if(stop1 == nullptr){ assert("stop1 nullptr");}
@@ -83,12 +83,12 @@ std::optional<BusInfo> TransportCatalogue::GetBusInfo(std::string_view name) con
     }
     int uniq_stops = bus_set.size();
     double curve = route_distance / geo_route_distance;
-    return BusInfo{stops_on_route,uniq_stops,route_distance, curve};
+    return BusStat{stops_on_route,uniq_stops,route_distance, curve};
 }
 
 
 double TransportCatalogue::GetDistance(std::pair<Stop *, Stop *> point) {
-    return ComputeDistance(point.first->coordinates,point.second->coordinates);
+    return geo::ComputeDistance(point.first->coordinates,point.second->coordinates);
 }
 
 std::optional<double> TransportCatalogue::RealDistanceCalculator(const Stop* stop1, const Stop* stop2) const {
@@ -105,7 +105,7 @@ std::optional<double> TransportCatalogue::RealDistanceCalculator(const Stop* sto
 std::optional<std::set<std::string_view>> TransportCatalogue::GetStopInfo(std::string_view name) const {
     const Stop* stop = FindBusStopByName(name);
     if(stop == nullptr){
-         return std::nullopt;
+        return std::nullopt;
     }
     std::set<std::string_view> stops={};
     auto iter = stopname_to_bus_list_.find(name);

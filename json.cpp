@@ -154,10 +154,14 @@ std::string LoadString(std::istream& input) {
     return s;
 }
 
+
 Node LoadNodeString(istream& input) {
     string line = LoadString(input);
     return Node(std::move(line));
 }
+
+
+
 
 Node LoadDict(istream& input) {
     Dict result;
@@ -243,37 +247,44 @@ Node LoadNode(istream& input) {
 
 
     }
+
     throw ParsingError("Unknown character parsing error!");
+
 }
+
+
 
 }  // namespace
 
 
+
+
 const Array& Node::AsArray() const {
     if (IsArray()) {
-        return get<Array>(*this);
+        return get<Array>(value_);
     }
     throw std::logic_error("Not <Map> value!");
 }
 
 const Dict& Node::AsMap() const {
     if (IsMap()) {
-        return get<Dict>(*this);
+        return get<Dict>(value_);
     }
     throw std::logic_error("Not <Map> value!");
 
 }
 
+
 int Node::AsInt() const {
     if (IsInt()) {
-        return std::get<int>(*this);
+        return std::get<int>(value_);
     }
     throw std::logic_error("Not  <int> value!");
 }
 
 bool Node::AsBool() const {
     if(IsBool()){
-        return get<bool>(*this);
+        return get<bool>(value_);
     }
     throw std::logic_error("Not <bool> value!");
 }
@@ -281,9 +292,9 @@ bool Node::AsBool() const {
 double Node::AsDouble() const
 {
     if (IsInt()) {
-        return std::get<int>(*this);
+        return std::get<int>(value_);
     } else if (IsDouble()) {
-        return std::get<double>(*this);
+        return std::get<double>(value_);
     }
 
     throw std::logic_error("Not <double> or <int> value!");
@@ -291,7 +302,7 @@ double Node::AsDouble() const
 
 const string& Node::AsString() const {
     if (IsString()) {
-        return get<std::string>(*this);
+        return get<std::string>(value_);
     }
     throw std::logic_error("Not <double> or <int> value!");
 }
@@ -314,12 +325,13 @@ void PrintValue(std::nullptr_t, std::ostream& out) {
     out << "null"sv;
 }
 
+// Шаблон, подходящий для вывода double и int
 template <typename Value>
 void PrintValue(const Value& value, std::ostream& out) {
     out << value;
 }
 
-
+//std::string,bool,Array,Dict
 void PrintValue(const std::string value, std::ostream& out) {
     using namespace std::literals;
     out << "\""sv;
@@ -373,6 +385,7 @@ void PrintValue(const Array value, std::ostream& out) {
     return;
 };
 
+//std::map<std::string, Node>;
 void PrintValue(const Dict value, std::ostream& out) {
     out << "{";
     bool first = true;
@@ -391,6 +404,13 @@ void PrintValue(const Dict value, std::ostream& out) {
     return;
 };
 
+// Шаблон, подходящий для вывода double и int
+//template <typename Value>
+//void PrintValue(const Value& value, std::ostream& out) {
+//    out << static_cast<Value>(value);
+//}
+
+// Другие перегрузки функции PrintValue пишутся аналогично
 
 void PrintNode(const Node& node, std::ostream& out) {
     std::visit(
@@ -401,6 +421,9 @@ void PrintNode(const Node& node, std::ostream& out) {
 void Print(const Document& doc, std::ostream& output) {
     Node root_node = doc.GetRoot();
     PrintNode(root_node,output);
+    //(void) &output;
+
+    // Реализуйте функцию самостоятельно
 }
 
 }  // namespace json

@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include <iostream>
 #include <map>
@@ -11,6 +10,7 @@
 namespace json {
 using namespace std::literals;
 class Node;
+// Сохраните объявления Dict и Array без изменения
 using Dict = std::map<std::string, Node>;
 using Array = std::vector<Node>;
 
@@ -20,13 +20,24 @@ public:
     using runtime_error::runtime_error;
 };
 
-class Node final: private std::variant<std::nullptr_t, int, double, std::string,bool,Array,Dict> {
+
+class Node {
 public:
-    using variant::variant;
     using Value = std::variant<std::nullptr_t, int, double, std::string,bool,Array,Dict>;
-    const Value& GetValue() const {
-        return value_;
-    }
+
+    const Value& GetValue() const { return value_; }
+
+
+    Node(Value value):value_(value){};
+
+    Node() = default;
+    Node(std::nullptr_t) {};
+    Node(Dict value) : value_(value) {};
+    Node(Array value) : value_(value) {};
+    Node(bool value) : value_(value) {};
+    Node(int value) : value_(value) {};
+    Node(double value) : value_(value) {};
+    Node(std::string value) : value_(value) {};
 
     bool operator == (const Node& n) const {
         return (n.GetValue() == value_);

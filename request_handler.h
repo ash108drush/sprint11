@@ -1,4 +1,5 @@
 #pragma once
+#include "transport_catalogue.h"
 
 /*
  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
@@ -35,3 +36,4 @@ private:
     const renderer::MapRenderer& renderer_;
 };
 */
+
