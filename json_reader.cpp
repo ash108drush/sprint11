@@ -23,7 +23,7 @@ void JsonReader::MakeBaseRequests(json::Node nodes){
             }
         }
     }
-/*
+
     if(nodes.IsArray()){
         for(const json::Node& node : nodes.AsArray()){
             if(node.IsMap()){
@@ -36,8 +36,8 @@ void JsonReader::MakeBaseRequests(json::Node nodes){
                             //domain_->AddStop(stop);
                         }
                         if(iter->second.AsString() == "Bus"){
-                            //domain::Bus bus = ParseBus(dict);
-                            //domain_->AddBus(bus);
+                            domain::Bus bus = ParseBus(dict);
+                            domain_->AddBus(bus);
                         }
                     }
                 }
@@ -45,7 +45,7 @@ void JsonReader::MakeBaseRequests(json::Node nodes){
         }
     }
 
-*/
+
 
 
 
@@ -96,7 +96,7 @@ Bus JsonReader::ParseBus(const json::Dict &dict){
                 is_roundtrip = value.AsBool();
             }
         }
-        /*
+
         if(key == "stops"){
             if(value.IsArray()){
                 for(const auto &stop_name: value.AsArray() ){
@@ -106,7 +106,7 @@ Bus JsonReader::ParseBus(const json::Dict &dict){
                 }
             }
         }
-        */
+
 
     }
 
