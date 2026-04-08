@@ -36,14 +36,14 @@ struct Stop{
 class Domain{
 public:
     void AddBus(Bus bus){
-        buses_.push_back(bus);
+        buses_.emplace_back(bus);
     }
     void AddStop(Stop stop){
-        stops_.push_back(stop);
+        stops_.emplace_back(stop);
     }
 private:
-    std::vector<Bus> buses_;
-    std::vector<Stop> stops_;
+    std::deque<Bus> buses_;
+    std::deque<Stop> stops_;
 };
 
 } //end namespace domain

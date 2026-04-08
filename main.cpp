@@ -22,6 +22,7 @@ using namespace std;
 #include "json.h"
 #include "json_reader.h"
 #include <sstream>
+#include <memory>
 #include "domain.h"
 using namespace transport_catalogue::main;
 using namespace transport_catalogue::reader::detail;
@@ -38,8 +39,9 @@ int main(int argc, char** argv) {
 
    // std::cout << strm.str();
     json::Document  doc = json::Load(in);
-    std::unique_ptr<transport_catalogue::domain::Domain> domain;
-    transport_catalogue::JsonReader json_reader(doc,std::move(domain)); // =  new JsonReader(&doc);
+    transport_catalogue::domain::Domain domain;
+    auto domain_ptr = std::make_unique<transport_catalogue::domain::Domain>(domain);
+    transport_catalogue::JsonReader json_reader(doc,std::move(domain_ptr)); // =  new JsonReader(&doc);
     //json::Print(doc, strm);
     // std::cout << strm.str();
     //const auto doc = json::Load(strm);

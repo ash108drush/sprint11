@@ -6,84 +6,113 @@
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
  */
  namespace transport_catalogue {
-void JsonReader::MakeBaseRequests(json::Node nodes)
-{
+void JsonReader::MakeBaseRequests(json::Node nodes){
     if(nodes.IsArray()){
         for(const json::Node& node : nodes.AsArray()){
             if(node.IsMap()){
-                json::Dict dict = node.AsMap();
-                 if(dict["type"] == "Stop"){
-                    std::string name="";
-                    double lat,lon;
-                    for(const auto &[key,value]: dict){
-                        if(key == "name"){
-                            if(value.IsString()){
-                                name = value.AsString();
-                            }
-
+                const json::Dict dict = node.AsMap();
+                auto iter = dict.find("type");
+                if( iter != dict.end()){
+                    if(iter->second.IsString()){
+                        if(iter->second.AsString() == "Stop"){
+                            domain::Stop stop = ParseStop(dict);
+                            domain_->AddStop(stop);
                         }
-                        if(key == "latitude"){
-                            if(value.IsDouble()){
-                                lat = value.AsDouble();
-                            }
-
-                        }
-                        if(key == "longitude"){
-                            if(value.IsDouble()){
-                                lon = value.AsDouble();
-                            }
-
-                        }
-                    } //end for cycle
-                    domain_->AddStop({name,geo::Coordinates{lat,lon} });
-
                     }
                 }
-            }// end first read
-
-            for(const json::Node& node : nodes.AsArray()){
-                if(node.IsMap()){
-                    for(const auto &[key,value] : node.AsMap()){
-                    if(key == "type"){
-                        if(value.AsString()=="Bus"){
-                            std::string name="";
-                            bool is_roundtrip=false;
-                            std::vector<std::string_view> stops ={};
-                                if(key == "name"){
-                                if(value.IsString()){
-                                    name = value.AsString();
-                                }
-
-                            }
-                            if(key == "is_roundtrip"){
-
-                                if(value.IsBool()){
-                                    is_roundtrip = value.AsBool();
-                                }
-
-                            }
-                            if(key == "stops"){
-
-                                if(value.IsArray()){
-                                    for(const auto & str :value.AsArray() ){
-                                        std::cout << str.AsString() << std::endl;
-
-                                }
-                                }else{ std::cout << "smth wrong";}
-                        } //end for cycle
-
-
-                    }
-                        domain_->AddBus({name,stops,is_roundtrip} );
-                    }
-
-
-        }// end second read
+            }
+        }
     }
+/*
+    if(nodes.IsArray()){
+        for(const json::Node& node : nodes.AsArray()){
+            if(node.IsMap()){
+                const json::Dict dict = node.AsMap();
+                auto iter = dict.find("type");
+                if( iter != dict.end()){
+                    if(iter->second.IsString()){
+                        if(iter->second.AsString() == "Stop"){
+                            //domain::Stop stop = ParseStop(dict);
+                            //domain_->AddStop(stop);
+                        }
+                        if(iter->second.AsString() == "Bus"){
+                            //domain::Bus bus = ParseBus(dict);
+                            //domain_->AddBus(bus);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+*/
+
+
+
 }
 
 void JsonReader::MakeStatRequests(json::Node node)
 {
 
 }
+
+
+
+domain::Stop JsonReader::ParseStop(const json::Dict& dict){
+    std::string name="";
+    double lat,lon;
+    for(const auto &[key,value]: dict){
+        if(key == "name"){
+            if(value.IsString()){
+                name = value.AsString();
+            }
+        }
+        if(key == "latitude"){
+            if(value.IsDouble()){
+                lat = value.AsDouble();
+            }
+        }
+        if(key == "longitude"){
+            if(value.IsDouble()){
+                lon = value.AsDouble();
+            }
+        }
+    }
+    return Stop{name,geo::Coordinates{lat,lon},{} };
+}
+
+Bus JsonReader::ParseBus(const json::Dict &dict){
+    std::string name="";
+    bool is_roundtrip=false;
+    std::vector<std::string_view> stops ={};
+    for(const auto &[key,value]: dict){
+        if(key == "name"){
+            if(value.IsString()){
+                name = value.AsString();
+            }
+        }
+        if(key == "is_roundtrip"){
+            if(value.IsBool()){
+                is_roundtrip = value.AsBool();
+            }
+        }
+        /*
+        if(key == "stops"){
+            if(value.IsArray()){
+                for(const auto &stop_name: value.AsArray() ){
+                    if(stop_name.IsString()){
+                        std::cout << stop_name.AsString() << std::endl;
+                    }
+                }
+            }
+        }
+        */
+
+    }
+
+
+    return {name,stops,is_roundtrip};
+}
+
+
 } //end namespace transport_catalogue
