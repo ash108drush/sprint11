@@ -45,10 +45,6 @@ void JsonReader::MakeBaseRequests(json::Node nodes){
         }
     }
 
-
-
-
-
 }
 
 void JsonReader::MakeStatRequests(json::Node node)
