@@ -16,7 +16,7 @@ void JsonReader::MakeBaseRequests(json::Node nodes){
                     if(iter->second.IsString()){
                         if(iter->second.AsString() == "Stop"){
                             domain::Stop stop = ParseStop(dict);
-                            domain_->AddStop(stop);
+                            tc_->AddBusStop(stop);
                         }
                     }
                 }
@@ -32,12 +32,22 @@ void JsonReader::MakeBaseRequests(json::Node nodes){
                 if( iter != dict.end()){
                     if(iter->second.IsString()){
                         if(iter->second.AsString() == "Stop"){
-                            //domain::Stop stop = ParseStop(dict);
-                            //domain_->AddStop(stop);
+                            auto iter_distance = dict.find("road_distances");
+                            if( iter_distance != dict.end()){
+                                if(iter_distance->second.IsMap()){
+                                    auto iter_name = dict.find("name");
+                                    std::string stop1_name = iter_name->second.AsString();
+                                    const json::Dict distances = iter_distance->second.AsMap();
+                                    for(const auto &[key,value]: distances){
+                                        tc_->AddStopDistance(stop1_name,key,value.AsDouble());
+                                    }
+
+                                }
+                            }
                         }
                         if(iter->second.AsString() == "Bus"){
                             domain::Bus bus = ParseBus(dict);
-                            domain_->AddBus(bus);
+                            tc_->AddBusRoute(bus);
                         }
                     }
                 }
