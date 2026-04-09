@@ -45,6 +45,16 @@ const Stop* TransportCatalogue::FindBusStopByName(std::string_view name) const {
     return nullptr;
 }
 
+const std::set<std::string_view> TransportCatalogue::GetBusesByStopName(std::string_view name) const {
+    std::set<std::string_view> stops={};
+    auto iter = stopname_to_bus_list_.find(name);
+    if(iter != stopname_to_bus_list_.end()){
+        stops = (iter->second);
+    }
+    return stops;
+
+}
+/*
 std::optional<BusStat> TransportCatalogue::GetBusStat(std::string_view name) const {
     const Bus* bus = FindRouteByName(name);
     if(bus == nullptr){
@@ -86,7 +96,7 @@ std::optional<BusStat> TransportCatalogue::GetBusStat(std::string_view name) con
     return BusStat{stops_on_route,uniq_stops,route_distance, curve};
 }
 
-
+*/
 double TransportCatalogue::GetDistance(std::pair<Stop *, Stop *> point) {
     return geo::ComputeDistance(point.first->coordinates,point.second->coordinates);
 }
@@ -101,7 +111,7 @@ std::optional<double> TransportCatalogue::RealDistanceCalculator(const Stop* sto
     }
     return iter->second;
 }
-
+/*
 std::optional<std::set<std::string_view>> TransportCatalogue::GetStopInfo(std::string_view name) const {
     const Stop* stop = FindBusStopByName(name);
     if(stop == nullptr){
@@ -114,7 +124,7 @@ std::optional<std::set<std::string_view>> TransportCatalogue::GetStopInfo(std::s
     }
     return stops;
 }
-
+*/
 
 }
 } // end namespace

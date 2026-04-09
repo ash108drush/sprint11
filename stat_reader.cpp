@@ -17,7 +17,7 @@ void ParseAndPrintStat(const TransportCatalogue& transport_catalogue, std::strin
     std::string_view name = request.substr(space_pos + 1, colon_pos - space_pos +1);
     std::string_view command = request.substr(0, space_pos);
     output << std::setprecision(6);
-
+/*
     if(command == "Bus"){
         std::optional<BusStat> opt_bus_info = transport_catalogue.GetBusStat(name);
         if(opt_bus_info != std::nullopt){
@@ -53,7 +53,7 @@ void ParseAndPrintStat(const TransportCatalogue& transport_catalogue, std::strin
             output <<  request << ": not found" << std::endl;
         }
     }
-
+*/
 }
 
 

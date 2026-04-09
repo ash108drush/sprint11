@@ -53,10 +53,5 @@ std::optional<std::set<std::string_view> > RequestHandler::GetStopInfo(std::stri
     if(stop == nullptr){
         return std::nullopt;
     }
-    std::set<std::string_view> stops={};
-    auto iter = stopname_to_bus_list_.find(name);
-    if(iter != stopname_to_bus_list_.end()){
-        stops = (iter->second);
-    }
-    return stops;
+    return db_.GetBusesByStopName(name);
 }

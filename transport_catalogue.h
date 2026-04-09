@@ -28,6 +28,8 @@ public:
     void AddStopDistance(std::string_view stop_name1,std::string_view stop_name2, double distance);
     const Bus* FindRouteByName(std::string_view name) const;
     const Stop* FindBusStopByName(std::string_view name) const;
+    const std::set<std::string_view> GetBusesByStopName(std::string_view name) const;
+
 
  //   const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;
     double GetDistance(std::pair<Stop *, Stop *>);
