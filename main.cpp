@@ -39,9 +39,9 @@ int main(int argc, char** argv) {
 
    // std::cout << strm.str();
     json::Document  doc = json::Load(in);
-    transport_catalogue::domain::Domain domain;
-    auto domain_ptr = std::make_unique<transport_catalogue::domain::Domain>(domain);
-    transport_catalogue::JsonReader json_reader(doc,std::move(domain_ptr)); // =  new JsonReader(&doc);
+    transport_catalogue::main::TransportCatalogue tc;
+    auto tc_ptr = std::make_unique<transport_catalogue::main::TransportCatalogue>(tc);
+    transport_catalogue::JsonReader json_reader(doc,std::move(tc_ptr)); // =  new JsonReader(&doc);
     //json::Print(doc, strm);
     // std::cout << strm.str();
     //const auto doc = json::Load(strm);

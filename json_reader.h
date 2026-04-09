@@ -45,6 +45,8 @@ private:
     domain::Stop ParseStop(const json::Dict& dict);
     domain::Bus ParseBus(const json::Dict& dict);
     void MakeStatRequests(json::Node node);
+    void MakeStopStatRequest(const json::Dict& dict);
+    void MakeBusStatRequest(const json::Dict& dict);
     json::Document document_;
     std::unique_ptr<transport_catalogue::main::TransportCatalogue> tc_;
 };

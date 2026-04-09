@@ -28,13 +28,13 @@ public:
     void AddStopDistance(std::string_view stop_name1,std::string_view stop_name2, double distance);
     const Bus* FindRouteByName(std::string_view name) const;
     const Stop* FindBusStopByName(std::string_view name) const;
-    std::optional<BusStat> GetBusStat(std::string_view name) const;
-    std::optional<std::set<std::string_view>> GetStopInfo(std::string_view name) const;
+
  //   const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;
     double GetDistance(std::pair<Stop *, Stop *>);
+    std::optional<double> RealDistanceCalculator(const Stop*,const Stop*) const;
 
 private:
-    std::optional<double> RealDistanceCalculator(const Stop*,const Stop*) const;
+
 
     struct PairHasher {
         size_t operator()(const std::pair<const Stop*, const Stop*>& stop)  const {
