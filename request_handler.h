@@ -5,7 +5,7 @@ using namespace transport_catalogue::main;
 class RequestHandler {
 public:
     // MapRenderer понадобится в следующей части итогового проекта
-    RequestHandler(const TransportCatalogue& db);
+    RequestHandler(const TransportCatalogue& db):db_(db){};
 
     // Возвращает информацию о маршруте (запрос Bus)
     std::optional<BusStat> GetBusStat(const std::string_view name) const;

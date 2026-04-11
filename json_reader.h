@@ -2,11 +2,10 @@
 #include "json.h"
 #include <iostream>
 #include <string>
-#include "input_reader.h"
-#include "stat_reader.h"
 #include <fstream>
 #include "json.h"
 #include "json_reader.h"
+#include "request_handler.h"
 #include <sstream>
 #include <cassert>
 
@@ -17,8 +16,8 @@
 namespace transport_catalogue {
 class JsonReader{
 public:
-    JsonReader(json::Document& document,std::unique_ptr<transport_catalogue::main::TransportCatalogue> tc_ptr):
-        document_(document),tc_(std::move(tc_ptr)){
+    JsonReader(const json::Document& document,main::TransportCatalogue& db,const RequestHandler& rh,std::ostream& out):
+        document_(document),db_(db),rh_(rh),out_(out){
        auto root_node = document_.GetRoot();
 
         if(root_node.IsMap()){
@@ -36,18 +35,29 @@ public:
         }else{
         assert(false && "root node not map");
         }
-         std::stringstream strm;
-       // json::Print(doc, strm);
-       // std::cout << strm.str();
     }
+    using stat_info = std::variant<std::nullptr_t,BusStat,std::set<std::string_view>>;
+
 private:
+    struct Request{
+        int id;
+        stat_info info;
+
+    };
     void MakeBaseRequests(json::Node node);
     domain::Stop ParseStop(const json::Dict& dict);
     domain::Bus ParseBus(const json::Dict& dict);
     void MakeStatRequests(json::Node node);
     void MakeStopStatRequest(const json::Dict& dict);
     void MakeBusStatRequest(const json::Dict& dict);
+    void PrintStatRequests();
     json::Document document_;
-    std::unique_ptr<transport_catalogue::main::TransportCatalogue> tc_;
+    main::TransportCatalogue& db_;
+    const RequestHandler& rh_;
+
+    std::vector<Request> stat_;
+
+    std::ostream& out_;
+
 };
 }
