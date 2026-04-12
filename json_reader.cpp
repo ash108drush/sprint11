@@ -323,7 +323,10 @@ Bus JsonReader::ParseBus(const json::Dict &dict){
                 for(const auto &stop_name: value.AsArray() ){
                     if(stop_name.IsString()){
                       //  std::cout << stop_name.AsString() << std::endl;
-                        stops.push_back(db_.FindBusStopByName( stop_name.AsString())->name);
+                        const Stop* stop = db_.FindBusStopByName( stop_name.AsString());
+                        if(stop != nullptr){
+                          stops.push_back(stop->name);
+                        }
 
                     }
                 }

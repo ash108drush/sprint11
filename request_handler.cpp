@@ -87,10 +87,12 @@ const std::map<std::string_view, Bus> RequestHandler::GetAllBus() const
 }
 
 void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_) const {
+
     const std::map<std::string_view, Bus> all_buses = GetAllBus();
     const Stop * stop = nullptr;
     for(const auto &[name,bus] : all_buses){
         std::vector<const Stop *> round;
+        if(bus.stops.size() == 0) continue;
         for(auto iter = bus.stops.begin(); iter != bus.stops.end(); ++iter){
             stop = db_.FindBusStopByName(*iter);
             if(stop != nullptr){
