@@ -56,7 +56,7 @@ private:
     void VectorStringToRgb(std::vector<std::string>& color_vec);
     RenderSettings render_settings_;
     std::vector<geo::Coordinates> geo_coords_;
-    std::vector<std::pair<std::string_view,const domain::Stop*>> route_points;
+    std::vector<std::pair<std::string_view,const domain::Stop*>> route_points_;
     std::ostream& out_;
 
 

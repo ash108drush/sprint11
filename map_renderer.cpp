@@ -9,13 +9,13 @@
 namespace transport_catalogue {
 
 void MapRenderer::AddRoute(std::string_view name,const domain::Stop* stop){
-    route_points.push_back({name,stop});
+    route_points_.push_back({name,stop});
 }
 
 void MapRenderer::RenderMap(){
     std::vector<geo::Coordinates> geo_coords;
-    geo_coords.reserve(route_points.size()*2);
-    for(auto const & point:route_points){
+    geo_coords.reserve(route_points_.size()*2);
+    for(auto const & point:route_points_){
             geo_coords.push_back(point.second->coordinates);
 
     }
@@ -36,10 +36,10 @@ void MapRenderer::RenderMap(){
     poly_line.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
     poly_line.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
     poly_line.SetFillColor("none");
-    for(auto iter = route_points.begin(); iter != route_points.end();++iter){
+    for(auto iter = route_points_.begin(); iter != route_points_.end();++iter){
         if(name != iter->first){
             name = iter->first;
-            if(iter != route_points.begin()){
+            if(iter != route_points_.begin()){
                 doc.Add(poly_line);
                 poly_line = svg::Polyline();
                 ++color_index;
@@ -54,7 +54,9 @@ void MapRenderer::RenderMap(){
             poly_line.AddPoint(proj(iter->second->coordinates));
         }
     }
-    doc.Add(poly_line);
+    if(route_points_.size()  >0 ) {
+        doc.Add(poly_line);
+    }
     doc.Render(out_);
 }
 
