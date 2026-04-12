@@ -7,7 +7,9 @@
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
  */
  namespace transport_catalogue {
-void JsonReader::MakeBaseRequests(json::Node nodes){
+
+
+ void JsonReader::MakeBaseRequests(json::Node nodes){
     if(nodes.IsArray()){
         for(const json::Node& node : nodes.AsArray()){
             if(node.IsMap()){
@@ -120,11 +122,96 @@ void JsonReader::MakeBusStatRequest(const json::Dict &dict){
     }
 }
 
-void JsonReader::SetRenderSettings(json::Node node)
-{
-    const RenderSettings render_settings;
-    map_renderer_.RenderMap(render_settings);
-    rh_.DrawBusRoute(map_renderer_,out_);
+std::string JsonReader::ArrayToString(json::Array node) {
+    std::string color = "none";
+    std::vector<std::string> colors;
+    for(const json::Node & node_str : node){
+        if(node_str.IsInt()){
+            colors.push_back(std::to_string(node_str.AsInt()));
+        }else if(node_str.IsDouble()){
+            colors.push_back(std::to_string(node_str.AsDouble()));
+        }
+    }
+    if(colors.size() == 3){
+        color="rgb(";
+    }else if(colors.size() == 4){
+        color="rgba(";
+    }
+    for(auto iter  = colors.begin(); iter != colors.end(); ++iter){
+        color += *iter;
+        if(iter != colors.end()-1){
+            color +=",";
+        }
+    }
+    color += ")";
+    return color;
+}
+void JsonReader::SetRenderSettings(json::Node nodes){
+    RenderSettings render_settings = RenderSettings();
+    if(nodes.IsMap()){
+        for(const auto &[key,value]: nodes.AsMap()){
+            if(key == "width" ){
+                render_settings.width = value.AsDouble();
+            }
+            if(key == "height" ){
+                render_settings.height = value.AsDouble();
+            }
+            if(key == "padding" ){
+                render_settings.padding = value.AsDouble();
+            }
+            if(key == "padding" ){
+                render_settings.padding = value.AsDouble();
+            }
+            if(key == "stop_radius" ){
+                render_settings.stop_radius = value.AsDouble();
+            }
+            if(key == "line_width" ){
+                render_settings.line_width = value.AsDouble();
+            }
+            if(key == "bus_label_font_size" ){
+                render_settings.bus_label_font_size = value.AsInt();
+            }
+            if(key == "bus_label_offset" ){
+                //std::pair<double,double>
+                if(value.IsArray()){
+                    render_settings.bus_label_offset = {value.AsArray()[0].AsDouble(),value.AsArray()[1].AsDouble()};
+                }
+            }
+            if(key == "stop_label_font_size" ){
+                render_settings.stop_label_font_size = value.AsInt();
+            }
+            if(key == "stop_label_offset" ){
+                if(value.IsArray()){
+                    render_settings.stop_label_offset = {value.AsArray()[0].AsDouble(),value.AsArray()[1].AsDouble()};
+                }
+            }
+            if(key == "underlayer_color" ){
+                if(value.IsArray()){
+                    render_settings.underlayer_color = ArrayToString(value.AsArray());
+                }
+            }
+            if(key == "underlayer_width" ){
+                render_settings.underlayer_width = value.AsDouble();
+            }
+
+            if(key == "color_palette" ){
+                if(value.IsArray()){
+                    std::vector<std::string> colors;
+                    for(const json::Node & node_str : value.AsArray()){
+                        if(node_str.IsString()){
+                            colors.push_back(node_str.AsString());
+                        }else{
+                            colors.push_back(ArrayToString(node_str.AsArray()));
+                        }
+                    }
+                    render_settings.color_palette = colors;
+                }
+            }
+        }
+    }
+
+    map_renderer_.SetRenderSettings(render_settings);
+    rh_.DrawBusRoute(map_renderer_);
 
 }
 
@@ -148,7 +235,7 @@ struct VariantPrinter {
         if(stop_info.size() >0){
             out << "\"buses\": ";
             out << "[" ;
-            int i=0;
+            size_t i=0;
             for(std::string_view sv: stop_info){
                 out << "\"" <<sv <<"\"";
                 ++i;
@@ -169,9 +256,10 @@ struct VariantPrinter {
 };
 
 void JsonReader::PrintStatRequests(){
-    out_ << "["<< std::endl;
+
     if(stat_.size() >0){
-        int i=0;
+        out_ << "["<< std::endl;
+        size_t i=0;
         for(auto &request : stat_){
             out_ << "{" << std::endl;
             std::visit(VariantPrinter{out_ ,request.id}, request.info);
@@ -184,9 +272,8 @@ void JsonReader::PrintStatRequests(){
             }
 
         }
+        out_ <<"]"<< std::endl;
     }
-    out_ <<"]"<< std::endl;
-
 
 }
 

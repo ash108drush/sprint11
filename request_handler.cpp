@@ -86,36 +86,28 @@ const std::map<std::string_view, Bus> RequestHandler::GetAllBus() const
     return db_.GetAllBus();
 }
 
-void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_,std::ostream& out) const {
+void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_) const {
     const std::map<std::string_view, Bus> all_buses = GetAllBus();
+    const Stop * stop = nullptr;
     for(const auto &[name,bus] : all_buses){
-        const Stop * stop1 = nullptr;
-        const Stop * stop2 = nullptr;
-        bool flagfirst= true;
+        std::vector<const Stop *> round;
         for(auto iter = bus.stops.begin(); iter != bus.stops.end(); ++iter){
-            stop1 = stop2;
-            stop2 = db_.FindBusStopByName(*iter);
-            if(flagfirst){
-                flagfirst = false;
-                continue;
-            }
-            if(stop1 != nullptr && stop2 != nullptr){
-               map_renderer_.DrawLine(name,stop1,stop2);
+            stop = db_.FindBusStopByName(*iter);
+            if(stop != nullptr){
+               map_renderer_.AddRoute(name,stop);
+                round.push_back(stop);
             }
         }
-
         if(!bus.is_roundtrip){
-            for(auto iter = bus.stops.rbegin()+1; iter != bus.stops.rend(); ++iter){
-                stop1 = stop2;
-                stop2 = db_.FindBusStopByName(*iter);
-                if(stop1 != nullptr && stop2 != nullptr){
-                    if(stop1 != nullptr && stop2 != nullptr){
-                        map_renderer_.DrawLine(name,stop1,stop2);
-                    }
-                }
+            for(auto iter = round.rbegin()+1; iter != round.rend();++iter){
+                map_renderer_.AddRoute(name,*iter);
             }
         }
     }
+
+
+
+    map_renderer_.RenderMap();
 
    // return main::BusStat{stops_on_route,uniq_stops,route_distance, curve};
 }

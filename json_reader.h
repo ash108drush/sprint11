@@ -18,9 +18,8 @@ namespace transport_catalogue {
 class JsonReader{
 public:
     JsonReader(const json::Document& document,main::TransportCatalogue& db,
-               const RequestHandler& rh,std::ostream& out,
-               MapRenderer& map_renderer):
-        document_(document),db_(db),rh_(rh),out_(out), map_renderer_(map_renderer){
+               const RequestHandler& rh,MapRenderer& map_renderer, std::ostream& out):
+        document_(document),db_(db),rh_(rh), map_renderer_(map_renderer),out_(out){
        auto root_node = document_.GetRoot();
 
         if(root_node.IsMap()){
@@ -32,7 +31,7 @@ public:
                     MakeBaseRequests(node);
                }
                if(str == "stat_requests"){
-                    MakeStatRequests(node);
+                   // MakeStatRequests(node);
                }
                if(str == "render_settings"){
                    SetRenderSettings(node);
@@ -52,6 +51,8 @@ private:
         stat_info info;
 
     };
+    std::string ArrayToString(json::Array node);
+
     void MakeBaseRequests(json::Node node);
     domain::Stop ParseStop(const json::Dict& dict);
     domain::Bus ParseBus(const json::Dict& dict);

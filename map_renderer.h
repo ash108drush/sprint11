@@ -11,6 +11,7 @@
 #include <iostream>
 #include <optional>
 #include <vector>
+#include <unordered_map>
 #include "domain.h"
 
 namespace transport_catalogue {
@@ -18,24 +19,6 @@ using namespace svg;
 
 
 class SphereProjector;
-struct RenderSettings;
-inline const double EPSILON = 1e-6;
-inline bool IsZero(double value) {
-    return std::abs(value) < EPSILON;
-}
-
-
-class MapRenderer{
-public:
-    MapRenderer(std::ostream& out):out_(out){
-
-    }
-    void DrawLine(std::string_view name,const domain::Stop* stop1, const domain::Stop * stop2);
-    void RenderMap(const RenderSettings& render_settings );
-private:
-    std::ostream& out_;
-
-};
 
 struct RenderSettings{
     double width = 1200.0;
@@ -52,6 +35,33 @@ struct RenderSettings{
     std::vector<Color> color_palette = {"green","[255, 160, 0]","red"};
 
 };
+
+
+inline const double EPSILON = 1e-6;
+inline bool IsZero(double value) {
+    return std::abs(value) < EPSILON;
+}
+
+class MapRenderer{
+public:
+    MapRenderer(std::ostream& out):out_(out){};
+    void AddRoute(std::string_view name,const domain::Stop* stop);
+    void SetRenderSettings(RenderSettings render_settings ){
+        render_settings_ = render_settings;
+
+    }
+    void RenderMap();
+private:
+    std::string StringToRgb(std::string color_str);
+    void VectorStringToRgb(std::vector<std::string>& color_vec);
+    RenderSettings render_settings_;
+    std::vector<geo::Coordinates> geo_coords_;
+    std::vector<std::pair<std::string_view,const domain::Stop*>> route_points;
+    std::ostream& out_;
+
+
+};
+
 
 
 

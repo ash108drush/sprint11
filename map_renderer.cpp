@@ -1,5 +1,6 @@
 #include "map_renderer.h"
 #include <iostream>
+#include <vector>
 /*
  * В этом файле вы можете разместить код, отвечающий за визуализацию карты маршрутов в формате SVG.
  * Визуализация маршртутов вам понадобится во второй части итогового проекта.
@@ -7,17 +8,86 @@
  */
 namespace transport_catalogue {
 
-void MapRenderer::DrawLine(std::string_view name,const domain::Stop* stop1, const domain::Stop * stop2){
-    out_ << stop1->name << "to: " << stop2->name << std::endl;
-
-    out_ << "drawLine" << stop1->coordinates.lat << stop1->coordinates.lng
-              << "to:  " << stop2->coordinates.lat << stop2->coordinates.lng << std::endl;
+void MapRenderer::AddRoute(std::string_view name,const domain::Stop* stop){
+    route_points.push_back({name,stop});
 }
 
-void MapRenderer::RenderMap(const RenderSettings &render_settings)
-{
+void MapRenderer::RenderMap(){
+    std::vector<geo::Coordinates> geo_coords;
+    geo_coords.reserve(route_points.size()*2);
+    for(auto const & point:route_points){
+            geo_coords.push_back(point.second->coordinates);
 
+    }
+    const SphereProjector proj{
+                               geo_coords.begin(), geo_coords.end(),
+                               render_settings_.width,
+                               render_settings_.height,
+                               render_settings_.padding };
+
+    svg::Document doc;
+    std::string_view name;
+    int color_index = 0;
+    svg::Polyline poly_line = svg::Polyline();
+    std::vector<std::string> color_palette = render_settings_.color_palette;
+    VectorStringToRgb(color_palette);
+    poly_line.SetStrokeColor(color_palette[color_index % color_palette.size()]);
+    poly_line.SetStrokeWidth(render_settings_.line_width);
+    poly_line.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
+    poly_line.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+    poly_line.SetFillColor("none");
+    for(auto iter = route_points.begin(); iter != route_points.end();++iter){
+        if(name != iter->first){
+            name = iter->first;
+            if(iter != route_points.begin()){
+                doc.Add(poly_line);
+                poly_line = svg::Polyline();
+                ++color_index;
+                poly_line.SetStrokeColor(color_palette[color_index % color_palette.size()]);
+                poly_line.SetStrokeWidth(render_settings_.line_width);
+                poly_line.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
+                poly_line.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+                poly_line.SetFillColor("none");
+            }
+        }
+        if(iter->second != nullptr){
+            poly_line.AddPoint(proj(iter->second->coordinates));
+        }
+    }
+    doc.Add(poly_line);
+    doc.Render(out_);
 }
+
+void MapRenderer::VectorStringToRgb(std::vector<Color> &color_palette){
+    for(auto iter = color_palette.begin(); iter != color_palette.end();++iter){
+        if(iter->find("[") != iter->npos){
+            *iter = StringToRgb(*iter);
+        }
+    }
+}
+
+std::string MapRenderer::StringToRgb(std::string color_str){
+    if(color_str.find("[") == color_str.npos) return color_str;
+    int commas = std::count_if(color_str.begin(),color_str.end(),[](char c) { return c == ','; });
+    if(commas == 2){
+        size_t pos = color_str.find("[");
+        color_str.replace(pos,1,"rgb(");
+        pos = color_str.find("]");
+        color_str.replace(pos,1,")");
+        return color_str;
+    }
+    if(commas == 3){
+        size_t pos = color_str.find("[");
+        color_str.replace(pos,1,"rgba(");
+        pos = color_str.find("]");
+        color_str.replace(pos,1,")");
+        return color_str;
+    }
+
+    return color_str;
+}
+
+
 
 
 }//end namespace

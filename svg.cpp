@@ -51,7 +51,7 @@ void Polyline::RenderObject(const RenderContext &context) const
         }
         ++i;
     }
-    out << "\" "sv;
+    out << "\""sv;
     RenderAttrs(context.out);
     out << "/>"sv;
 

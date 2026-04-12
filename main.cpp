@@ -30,6 +30,7 @@ using namespace transport_catalogue::main;
 int main() {
 
     TransportCatalogue  catalogue;
+
     std::ifstream in;
     std::ofstream out;
     std::ofstream outsvg;
@@ -41,16 +42,16 @@ int main() {
     transport_catalogue::main::TransportCatalogue tc;
     RequestHandler rh(tc);
     MapRenderer map_renderer(outsvg);
-    JsonReader json_reader(doc, tc, rh,out, map_renderer);
+    JsonReader json_reader(doc, tc, rh, map_renderer,out);
 
 
-    /*
+/*
     json::Document  doc = json::Load(std::cin);
     transport_catalogue::main::TransportCatalogue tc;
     RequestHandler rh(tc);
-    JsonReader json_reader(doc, tc, rh,std::cout);
+    MapRenderer map_renderer(std::cout);
+    JsonReader json_reader(doc, tc, rh,map_renderer,std::cout);
 */
 
 }
-//Задача прошла 14 из 26 проверок
-//    Неуспех
+

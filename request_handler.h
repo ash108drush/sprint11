@@ -12,7 +12,7 @@ public:
     std::optional<main::BusStat> GetBusStat(const std::string_view name) const;
     std::optional<std::set<std::string_view>> GetStopInfo(std::string_view name) const;
     const std::map<std::string_view, Bus> GetAllBus() const;
-    void DrawBusRoute(MapRenderer& map_renderer_,std::ostream& out) const;
+    void DrawBusRoute(MapRenderer& map_renderer_) const;
 
 
 private:

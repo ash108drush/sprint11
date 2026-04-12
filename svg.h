@@ -133,9 +133,14 @@ private:
 class ObjectContainer{
 public:
     //
-    template <typename Obj>
-    void Add(Obj obj) {
-        AddPtr(std::move((std::make_unique<Obj>(std::move(obj)))));
+   // template <typename Obj>
+   // void Add(Obj obj) {
+    //   AddPtr(std::move((std::make_unique<Obj>(std::move(obj)))));
+       // AddPtr(std::unique_ptr<Obj>(std::make_unique<Obj>(std::move(obj))));
+    //}
+    template <typename ObjectType>
+    void Add(ObjectType object) {
+        AddPtr(std::make_unique<ObjectType>(std::move(object)));
     }
 
     virtual void AddPtr(std::unique_ptr<Object>&& obj) = 0;
