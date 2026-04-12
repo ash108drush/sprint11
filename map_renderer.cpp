@@ -7,7 +7,7 @@
  */
 namespace transport_catalogue {
 
-void MapRenderer::DrawLine(const domain::Stop* stop1, const domain::Stop * stop2){
+void MapRenderer::DrawLine(std::string_view name,const domain::Stop* stop1, const domain::Stop * stop2){
     out_ << stop1->name << "to: " << stop2->name << std::endl;
 
     out_ << "drawLine" << stop1->coordinates.lat << stop1->coordinates.lng

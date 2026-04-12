@@ -32,13 +32,15 @@ int main() {
     TransportCatalogue  catalogue;
     std::ifstream in;
     std::ofstream out;
+    std::ofstream outsvg;
     in.open("input.json");
     out.open("output.json");
+    outsvg.open("out.svg");
 
     json::Document  doc = json::Load(in);
     transport_catalogue::main::TransportCatalogue tc;
     RequestHandler rh(tc);
-    MapRenderer map_renderer(out);
+    MapRenderer map_renderer(outsvg);
     JsonReader json_reader(doc, tc, rh,out, map_renderer);
 
 

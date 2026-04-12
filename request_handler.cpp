@@ -100,7 +100,7 @@ void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_,std::ostream& out) 
                 continue;
             }
             if(stop1 != nullptr && stop2 != nullptr){
-               map_renderer_.DrawLine(stop1,stop2);
+               map_renderer_.DrawLine(name,stop1,stop2);
             }
         }
 
@@ -110,7 +110,7 @@ void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_,std::ostream& out) 
                 stop2 = db_.FindBusStopByName(*iter);
                 if(stop1 != nullptr && stop2 != nullptr){
                     if(stop1 != nullptr && stop2 != nullptr){
-                        map_renderer_.DrawLine(stop1,stop2);
+                        map_renderer_.DrawLine(name,stop1,stop2);
                     }
                 }
             }

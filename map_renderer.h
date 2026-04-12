@@ -30,7 +30,7 @@ public:
     MapRenderer(std::ostream& out):out_(out){
 
     }
-    void DrawLine(const domain::Stop* stop1, const domain::Stop * stop2);
+    void DrawLine(std::string_view name,const domain::Stop* stop1, const domain::Stop * stop2);
     void RenderMap(const RenderSettings& render_settings );
 private:
     std::ostream& out_;
