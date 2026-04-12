@@ -8,6 +8,7 @@
 #include "request_handler.h"
 #include <sstream>
 #include <cassert>
+#include "map_renderer.h"
 
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
@@ -16,8 +17,10 @@
 namespace transport_catalogue {
 class JsonReader{
 public:
-    JsonReader(const json::Document& document,main::TransportCatalogue& db,const RequestHandler& rh,std::ostream& out):
-        document_(document),db_(db),rh_(rh),out_(out){
+    JsonReader(const json::Document& document,main::TransportCatalogue& db,
+               const RequestHandler& rh,std::ostream& out,
+               MapRenderer& map_renderer):
+        document_(document),db_(db),rh_(rh),out_(out), map_renderer_(map_renderer){
        auto root_node = document_.GetRoot();
 
         if(root_node.IsMap()){
@@ -31,12 +34,17 @@ public:
                if(str == "stat_requests"){
                     MakeStatRequests(node);
                }
+               if(str == "render_settings"){
+                   SetRenderSettings(node);
+               }
+
+
            }
         }else{
         assert(false && "root node not map");
         }
     }
-    using stat_info = std::variant<std::nullptr_t,BusStat,std::set<std::string_view>>;
+    using stat_info = std::variant<std::nullptr_t,main::BusStat,std::set<std::string_view>>;
 
 private:
     struct Request{
@@ -50,10 +58,12 @@ private:
     void MakeStatRequests(json::Node node);
     void MakeStopStatRequest(const json::Dict& dict);
     void MakeBusStatRequest(const json::Dict& dict);
+    void SetRenderSettings(json::Node node);
     void PrintStatRequests();
     json::Document document_;
     main::TransportCatalogue& db_;
     const RequestHandler& rh_;
+    MapRenderer& map_renderer_;
 
     std::vector<Request> stat_;
 

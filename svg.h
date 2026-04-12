@@ -1,4 +1,7 @@
 #define _USE_MATH_DEFINES
+#ifndef M_PI
+#define M_PI 3.14159265558979223846
+#endif
 #pragma once
 #include <cmath>
 #include <cstdint>
@@ -6,10 +9,126 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <optional>
 namespace svg {
 
 class Document;
 class Object;
+
+using Color = std::string;
+inline const Color NoneColor{"none"};
+enum class StrokeLineCap {
+    BUTT,
+    ROUND,
+    SQUARE,
+};
+
+enum class StrokeLineJoin {
+    ARCS,
+    BEVEL,
+    MITER,
+    MITER_CLIP,
+    ROUND,
+};
+
+inline std::ostream& operator<<(std::ostream& out, StrokeLineCap line_cap) {
+    using namespace std::literals;
+    switch (line_cap) {
+    case StrokeLineCap::BUTT:
+        out << "butt"s;
+        break;
+    case StrokeLineCap::ROUND:
+        out << "round"s;
+        break;
+    case StrokeLineCap::SQUARE:
+        out << "square"s;
+        break;
+    }
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, StrokeLineJoin line_join) {
+    using namespace std::literals;
+    switch (line_join) {
+    case StrokeLineJoin::ARCS:
+        out << "arcs"s;
+        break;
+    case StrokeLineJoin::BEVEL:
+        out << "bevel"s;
+        break;
+    case StrokeLineJoin::MITER:
+        out << "miter"s;
+        break;
+    case StrokeLineJoin::MITER_CLIP:
+        out << "miter-clip"s;
+        break;
+    case StrokeLineJoin::ROUND:
+        out << "round"s;
+        break;
+
+    }
+    return out;
+}
+template <typename Owner>
+class PathProps{
+public:
+
+    Owner& SetFillColor(Color color){
+        fill_color_ = color;
+        return AsOwner();
+    }
+    Owner& SetStrokeColor(Color color){
+        stroke_color_ = color;
+        return AsOwner();
+    }
+    Owner& SetStrokeWidth(double width){
+        stroke_width_ = width;
+        return AsOwner();
+    }
+    Owner& SetStrokeLineCap(StrokeLineCap line_cap){
+        line_cap_ = line_cap;
+        return AsOwner();
+    }
+    Owner& SetStrokeLineJoin(StrokeLineJoin line_join){
+        line_join_ = line_join;
+        return AsOwner();
+    }
+protected:
+    ~PathProps() = default;
+
+    // Метод RenderAttrs выводит в поток общие для всех путей атрибуты fill и stroke
+    void RenderAttrs(std::ostream& out) const {
+        using namespace std::literals;
+
+        if (fill_color_) {
+            out << " fill=\""sv << *fill_color_ << "\""sv;
+        }
+        if (stroke_color_) {
+            out << " stroke=\""sv << *stroke_color_ << "\""sv;
+        }
+
+        if (stroke_width_) {
+            out << " stroke-width=\""sv << *stroke_width_ << "\""sv;
+        }
+        if (line_cap_) {
+            out << " stroke-linecap=\""sv << *line_cap_ << "\""sv;
+        }
+        if (line_join_) {
+            out << " stroke-linejoin=\""sv << *line_join_ << "\""sv;
+        }
+    }
+
+private:
+    Owner& AsOwner() {
+        return static_cast<Owner&>(*this);
+    }
+    std::optional<Color> fill_color_ = std::nullopt;
+    std::optional<Color> stroke_color_ = std::nullopt;
+    std::optional<double> stroke_width_ = std::nullopt;
+    std::optional<StrokeLineCap> line_cap_ = std::nullopt;
+    std::optional<StrokeLineJoin> line_join_ = std::nullopt;
+
+};
 
 class ObjectContainer{
 public:
@@ -92,7 +211,7 @@ private:
  * Класс Circle моделирует элемент <circle> для отображения круга
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
  */
-class Circle final : public Object {
+class Circle final : public Object, public PathProps<Circle> {
 public:
     Circle& SetCenter(Point center);
     Circle& SetRadius(double radius);
@@ -108,7 +227,7 @@ private:
  * Класс Polyline моделирует элемент <polyline> для отображения ломаных линий
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
  */
-class Polyline final : public Object{
+class Polyline final : public Object, public PathProps<Polyline>{
 public:
     // Добавляет очередную вершину к ломаной линии
     Polyline& AddPoint(Point point);
@@ -125,7 +244,7 @@ private:
  * Класс Text моделирует элемент <text> для отображения текста
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
  */
-class Text: public Object {
+class Text: public Object, public PathProps<Text> {
 public:
     // Задаёт координаты опорной точки (атрибуты x и y)
     Text& SetPosition(Point pos){
@@ -230,7 +349,7 @@ private:
     svg::Point p1_, p2_, p3_;
 };
 //(Point{50.0, 20.0}, 10.0, 4.0, 5))
-class Star : public svg::Drawable  {
+class Star : public svg::Drawable, public svg::PathProps<Star>  {
 public:
     Star(svg::Point  center, double outer_rad, double inner_rad, int num_rays):center_(center),
         outer_rad_(outer_rad),inner_rad_(inner_rad),num_rays_(num_rays) {
@@ -252,7 +371,7 @@ private:
             angle += M_PI / num_rays_;
             polyline.AddPoint({center_.x + inner_rad_ * sin(angle), center_.y - inner_rad_ * cos(angle)});
         }
-        return polyline;
+        return polyline.SetFillColor("red").SetStrokeColor("black");
     }
 
     svg::Point center_;
@@ -261,13 +380,13 @@ private:
     int num_rays_;
 
 };
-class Snowman : public svg::Drawable {
+class Snowman : public svg::Drawable, public svg::PathProps<Snowman> {
 public:
     Snowman(svg::Point  center, double head_radius):center_(center),head_radius_(head_radius){
         svg::Circle circle;
-        snowman_.push_back(circle.SetCenter({center_.x,center_.y+head_radius_ * 5} ).SetRadius(head_radius_ * 2));
-        snowman_.push_back(circle.SetCenter({center_.x,center_.y+head_radius_ * 2} ).SetRadius(head_radius_ * 1.5));
-        snowman_.push_back(circle.SetCenter(center_).SetRadius(head_radius_));
+        snowman_.push_back(circle.SetCenter({center_.x,center_.y+head_radius_ * 5} ).SetRadius(head_radius_ * 2).SetFillColor("rgb(240,240,240)").SetStrokeColor("black"));
+        snowman_.push_back(circle.SetCenter({center_.x,center_.y+head_radius_ * 2} ).SetRadius(head_radius_ * 1.5).SetFillColor("rgb(240,240,240)").SetStrokeColor("black"));
+        snowman_.push_back(circle.SetCenter(center_).SetRadius(head_radius_).SetFillColor("rgb(240,240,240)").SetStrokeColor("black"));
     }
 
     void Draw(svg::ObjectContainer& container) const override {

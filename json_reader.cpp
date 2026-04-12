@@ -1,5 +1,6 @@
 #include "json_reader.h"
 #include "domain.h"
+#include "map_renderer.h"
 #include "geo.h"
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
@@ -110,13 +111,21 @@ void JsonReader::MakeBusStatRequest(const json::Dict &dict){
             id = value.AsInt();
         }
     }
-    std::optional<BusStat> bus_stat = rh_.GetBusStat(name);
+    std::optional<main::BusStat> bus_stat = rh_.GetBusStat(name);
     if(bus_stat.has_value()){
         Request new_request{id,bus_stat.value()};
         stat_.push_back(new_request);
     }else{
         stat_.push_back(Request{id,nullptr});
     }
+}
+
+void JsonReader::SetRenderSettings(json::Node node)
+{
+    const RenderSettings render_settings;
+    map_renderer_.RenderMap(render_settings);
+    rh_.DrawBusRoute(map_renderer_,out_);
+
 }
 
 
@@ -128,7 +137,7 @@ struct VariantPrinter {
         out << "\"error_message\": \"not found\"" << std::endl;
     }
 
-    void operator()(BusStat bus_stat) const {
+    void operator()(main::BusStat bus_stat) const {
         out << "\"curvature\": " << bus_stat.curvature << ","<< std::endl;
         out << "\"request_id\": " <<  key  << ","<< std::endl;
         out << "\"route_length\": " << bus_stat.route_length <<"," << std::endl;

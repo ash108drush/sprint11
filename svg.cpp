@@ -29,6 +29,7 @@ void Circle::RenderObject(const RenderContext& context) const {
     auto& out = context.out;
     out << "<circle cx=\""sv << center_.x << "\" cy=\""sv << center_.y << "\" "sv;
     out << "r=\""sv << radius_ << "\" "sv;
+    RenderAttrs(context.out);
     out << "/>"sv;
 }
 
@@ -51,6 +52,7 @@ void Polyline::RenderObject(const RenderContext &context) const
         ++i;
     }
     out << "\" "sv;
+    RenderAttrs(context.out);
     out << "/>"sv;
 
 }
@@ -86,7 +88,7 @@ void Text::RenderObject(const RenderContext &context) const
     if(font_weight_.length() > 0  ){
         out << " font-weight=\"" << font_weight_ << "\"";
     }
-    ;
+    RenderAttrs(context.out);
     out << ">"sv;
     out << format_data(data_);
     out << "</text>"sv;
@@ -105,7 +107,7 @@ std::string Text::format_data(std::string_view data) const{
         char ch = data[find_pos];
         if(ch == '>'){
             result +="&gt;";
-         }
+        }
 
         if(ch == '<'){
             result +="&lt;";

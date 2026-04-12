@@ -8,7 +8,8 @@
  * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
  * можете оставить его пустым.
  */
-std::optional<BusStat> RequestHandler::GetBusStat(const std::string_view name) const{
+using namespace transport_catalogue;
+std::optional<main::BusStat> RequestHandler::GetBusStat(const std::string_view name) const{
     const Bus* bus = db_.FindRouteByName(name);
 if(bus == nullptr){
     return std::nullopt;
@@ -68,7 +69,7 @@ if(!bus->is_roundtrip){
 }
 int uniq_stops = bus_set.size();
 double curve = route_distance / geo_route_distance;
-return BusStat{stops_on_route,uniq_stops,route_distance, curve};
+return main::BusStat{stops_on_route,uniq_stops,route_distance, curve};
 }
 
 std::optional<std::set<std::string_view> > RequestHandler::GetStopInfo(std::string_view name) const {
@@ -78,4 +79,43 @@ std::optional<std::set<std::string_view> > RequestHandler::GetStopInfo(std::stri
         return std::nullopt;
     }
     return db_.GetBusesByStopName(name);
+}
+
+const std::map<std::string_view, Bus> RequestHandler::GetAllBus() const
+{
+    return db_.GetAllBus();
+}
+
+void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_,std::ostream& out) const {
+    const std::map<std::string_view, Bus> all_buses = GetAllBus();
+    for(const auto &[name,bus] : all_buses){
+        const Stop * stop1 = nullptr;
+        const Stop * stop2 = nullptr;
+        bool flagfirst= true;
+        for(auto iter = bus.stops.begin(); iter != bus.stops.end(); ++iter){
+            stop1 = stop2;
+            stop2 = db_.FindBusStopByName(*iter);
+            if(flagfirst){
+                flagfirst = false;
+                continue;
+            }
+            if(stop1 != nullptr && stop2 != nullptr){
+               map_renderer_.DrawLine(stop1,stop2);
+            }
+        }
+
+        if(!bus.is_roundtrip){
+            for(auto iter = bus.stops.rbegin()+1; iter != bus.stops.rend(); ++iter){
+                stop1 = stop2;
+                stop2 = db_.FindBusStopByName(*iter);
+                if(stop1 != nullptr && stop2 != nullptr){
+                    if(stop1 != nullptr && stop2 != nullptr){
+                        map_renderer_.DrawLine(stop1,stop2);
+                    }
+                }
+            }
+        }
+    }
+
+   // return main::BusStat{stops_on_route,uniq_stops,route_distance, curve};
 }

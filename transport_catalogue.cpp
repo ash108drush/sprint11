@@ -54,6 +54,14 @@ const std::set<std::string_view> TransportCatalogue::GetBusesByStopName(std::str
     return stops;
 
 }
+
+const std::map<std::string_view, Bus> TransportCatalogue::GetAllBus() const {
+    std::map<std::string_view, Bus> all_buses;
+    for(const Bus & bus :buses_){
+        all_buses.insert({bus.name,bus});
+    }
+    return all_buses;
+}
 /*
 std::optional<BusStat> TransportCatalogue::GetBusStat(std::string_view name) const {
     const Bus* bus = FindRouteByName(name);

@@ -7,6 +7,7 @@
 #include <string>
 #include<optional>
 #include <set>
+#include <map>
 #include <memory>
 #include "geo.h"
 #include "domain.h"
@@ -29,6 +30,7 @@ public:
     const Bus* FindRouteByName(std::string_view name) const;
     const Stop* FindBusStopByName(std::string_view name) const;
     const std::set<std::string_view> GetBusesByStopName(std::string_view name) const;
+    const std::map<std::string_view,Bus> GetAllBus() const;
 
 
  //   const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;

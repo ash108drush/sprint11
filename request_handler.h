@@ -1,20 +1,23 @@
 #pragma once
 #include "transport_catalogue.h"
-using namespace transport_catalogue::main;
+#include "map_renderer.h"
+using namespace transport_catalogue;
 
 class RequestHandler {
 public:
     // MapRenderer понадобится в следующей части итогового проекта
-    RequestHandler(const TransportCatalogue& db):db_(db){};
+    RequestHandler(const main::TransportCatalogue& db):db_(db){};
 
     // Возвращает информацию о маршруте (запрос Bus)
-    std::optional<BusStat> GetBusStat(const std::string_view name) const;
+    std::optional<main::BusStat> GetBusStat(const std::string_view name) const;
     std::optional<std::set<std::string_view>> GetStopInfo(std::string_view name) const;
+    const std::map<std::string_view, Bus> GetAllBus() const;
+    void DrawBusRoute(MapRenderer& map_renderer_,std::ostream& out) const;
 
 
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
-    const TransportCatalogue& db_;
+    const main::TransportCatalogue& db_;
 
 };
 

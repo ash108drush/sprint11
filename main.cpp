@@ -23,6 +23,7 @@ using namespace std;
 #include <memory>
 #include "domain.h"
 #include "request_handler.h"
+#include "map_renderer.h"
 using namespace transport_catalogue;
 using namespace transport_catalogue::main;
 
@@ -37,7 +38,8 @@ int main() {
     json::Document  doc = json::Load(in);
     transport_catalogue::main::TransportCatalogue tc;
     RequestHandler rh(tc);
-    JsonReader json_reader(doc, tc, rh,out);
+    MapRenderer map_renderer(out);
+    JsonReader json_reader(doc, tc, rh,out, map_renderer);
 
 
     /*
