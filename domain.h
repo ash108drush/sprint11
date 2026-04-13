@@ -25,11 +25,19 @@ struct Bus {
     bool is_roundtrip;
 };
 
+
 struct Stop{
     std::string name;
     geo::Coordinates coordinates;
     std::unordered_map<std::string_view,double> road_distances = {};
 };
+
+struct BusRoute {
+    std::vector<const Stop *> stops ={};
+    bool is_roundtrip;
+    const Stop * last_stop =nullptr;
+};
+
 
 
 

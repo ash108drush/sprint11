@@ -1,6 +1,7 @@
 #include "map_renderer.h"
 #include <iostream>
 #include <vector>
+
 /*
  * В этом файле вы можете разместить код, отвечающий за визуализацию карты маршрутов в формате SVG.
  * Визуализация маршртутов вам понадобится во второй части итогового проекта.
@@ -14,7 +15,7 @@ void MapRenderer::RenderMap(StopsMap  bus_stops){
     std::vector<geo::Coordinates> geo_coords;
     geo_coords.reserve(bus_stops.size());
     for(auto const &[bus_name, bus_data] :bus_stops){
-        for(auto const &stop: bus_data.first){
+        for(auto const &stop: bus_data.stops){
             geo_coords.push_back(stop->coordinates);
         }
     }
@@ -27,10 +28,17 @@ void MapRenderer::RenderMap(StopsMap  bus_stops){
     svg::Document doc;
     std::vector<std::string> color_palette = render_settings_.color_palette;
     VectorStringToRgb(color_palette);
-    RenderPolylines(bus_stops,color_palette,proj,doc);
-    RenderRouteNames(bus_stops,color_palette,proj,doc);
+    if(bus_stops.size() == 0){
+        doc.Render(out_);
+        return;
+    }
+    RenderPolylines(bus_stops, color_palette, proj, doc);
+    RenderRouteNames(bus_stops, color_palette, proj, doc);
+    std::map<std::string_view,geo::Coordinates> stops_map = RenderRouteCircles(bus_stops,proj,doc);
+    RenderStopNames(stops_map, proj, doc);
 
 
+    doc.Render(out_);
 
 }
 
@@ -39,17 +47,11 @@ void MapRenderer::RenderRouteNames(const StopsMap & bus_stops,
                                   const SphereProjector& proj,
                                   svg::Document& doc){
     int color_index = 0;
+
+
     for(auto const &[bus_name, bus_data] :bus_stops){
         svg::Text text = svg::Text();
         svg::Text text_underlayer = svg::Text();
-
-        text.SetFontSize(render_settings_.bus_label_font_size);
-        text_underlayer.SetFontSize(render_settings_.bus_label_font_size);
-        text.SetFontFamily("Verdana");
-        text_underlayer.SetFontFamily("Verdana");
-        text.SetFontWeight("bold");
-        text_underlayer.SetFontWeight("bold");
-
         text_underlayer.SetFillColor(render_settings_.underlayer_color);
         text_underlayer.SetStrokeColor(render_settings_.underlayer_color);
         text_underlayer.SetStrokeWidth(render_settings_.underlayer_width);
@@ -58,23 +60,97 @@ void MapRenderer::RenderRouteNames(const StopsMap & bus_stops,
 
         text.SetFillColor(color_palette[color_index % color_palette.size()]);
 
+        text_underlayer.SetOffset({render_settings_.bus_label_offset.first,render_settings_.bus_label_offset.second});
+        text.SetOffset({render_settings_.bus_label_offset.first,render_settings_.bus_label_offset.second});
+        text.SetFontSize(render_settings_.bus_label_font_size);
+        text_underlayer.SetFontSize(render_settings_.bus_label_font_size);
+        text.SetFontFamily("Verdana");
+        text_underlayer.SetFontFamily("Verdana");
+        text.SetFontWeight("bold");
+        text_underlayer.SetFontWeight("bold");
+        text.SetData(static_cast<std::string>(bus_name));
+        text_underlayer.SetData(static_cast<std::string>(bus_name));
 
-        for(auto const &stop: bus_data.first){
-            text_underlayer.SetPosition();
-            text_underlayer.SetOffset();
-            text.SetPosition();
-            text.SetOffset();
 
-        }
 
-        if(bus_data.first.size()  >0 ) {
+        if(bus_data.is_roundtrip){
+            Point p = proj(bus_data.stops[0]->coordinates);
+            text_underlayer.SetPosition(p);
+            text.SetPosition(p);
             doc.Add(text_underlayer);
             doc.Add(text);
             ++color_index;
+        }else{
+            Point p1 = proj(bus_data.stops[0]->coordinates);
+            text_underlayer.SetPosition(p1);
+            text.SetPosition(p1);
+            doc.Add(text_underlayer);
+            doc.Add(text);
+            if(bus_data.last_stop != bus_data.stops[0] ){
+                Point p2 = proj(bus_data.last_stop->coordinates);
+                text_underlayer.SetPosition(p2);
+                text.SetPosition(p2);
+                doc.Add(text_underlayer);
+                doc.Add(text);
+            }
+
+            ++color_index;
         }
     }
+}
 
-    doc.Render(out_);
+std::map<std::string_view,geo::Coordinates> MapRenderer::RenderRouteCircles(
+    const StopsMap &bus_stops,
+    const SphereProjector& proj,
+    svg::Document& doc){
+
+    svg::Circle circle = svg::Circle();
+    circle.SetRadius(render_settings_.stop_radius);
+    circle.SetFillColor("white");
+    std::map<std::string_view,geo::Coordinates> stops_map;
+    for(auto const &[bus_name, bus_data] :bus_stops){
+        for(const domain::Stop * stop : bus_data.stops){
+            stops_map.insert({stop->name,stop->coordinates});
+        }
+    }
+    for(const auto &[name,coords] : stops_map){
+        circle.SetCenter(proj(coords));
+        doc.Add(circle);
+    }
+
+    return stops_map;
+}
+
+void MapRenderer::RenderStopNames(const std::map<std::string_view,geo::Coordinates> &stops_map,
+                                    const SphereProjector &proj, Document &doc){
+    for(auto const &[stop_name, coords] :stops_map){
+        svg::Text text = svg::Text();
+        svg::Text text_underlayer = svg::Text();
+        text_underlayer.SetOffset({render_settings_.stop_label_offset.first,render_settings_.stop_label_offset.second});
+        text.SetOffset({render_settings_.stop_label_offset.first,render_settings_.stop_label_offset.second});
+        text.SetFontSize(render_settings_.stop_label_font_size);
+        text_underlayer.SetFontSize(render_settings_.stop_label_font_size);
+        text.SetFontFamily("Verdana");
+        text_underlayer.SetFontFamily("Verdana");
+        //text.SetFontWeight("bold");
+        //text_underlayer.SetFontWeight("bold");
+        text.SetData(static_cast<std::string>(stop_name));
+        text_underlayer.SetData(static_cast<std::string>(stop_name));
+
+        text_underlayer.SetFillColor(render_settings_.underlayer_color);
+        text_underlayer.SetStrokeColor(render_settings_.underlayer_color);
+        text_underlayer.SetStrokeWidth(render_settings_.underlayer_width);
+        text_underlayer.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
+        text_underlayer.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+        text.SetFillColor("black");
+
+        Point p = proj(coords);
+        text_underlayer.SetPosition(p);
+        text.SetPosition(p);
+        doc.Add(text_underlayer);
+        doc.Add(text);
+
+    }
 
 }
 
@@ -91,17 +167,14 @@ void MapRenderer::RenderPolylines(const StopsMap & bus_stops,
         poly_line.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
         poly_line.SetStrokeColor(color_palette[color_index % color_palette.size()]);
 
-        for(auto const &stop: bus_data.first){
+        for(auto const &stop: bus_data.stops){
             poly_line.AddPoint(proj(stop->coordinates));
         }
 
-        if(bus_data.first.size()  >0 ) {
-            doc.Add(poly_line);
-            ++color_index;
-        }
-    }
+        doc.Add(poly_line);
+        ++color_index;
 
-    doc.Render(out_);
+    }
 
 }
 

@@ -192,6 +192,9 @@ void JsonReader::SetRenderSettings(json::Node nodes){
                 if(value.IsArray()){
                     render_settings.underlayer_color = ArrayToString(value.AsArray());
                 }
+                if(value.IsString()){
+                    render_settings.underlayer_color = value.AsString();
+                }
             }
             if(key == "underlayer_width" ){
                 render_settings.underlayer_width = value.AsDouble();

@@ -74,8 +74,9 @@ void Document::Render(std::ostream &out) const
 void Text::RenderObject(const RenderContext &context) const
 {
     auto& out = context.out;
-    out << "<text "sv;
-    out << "x=\"" << pos_.x <<"\" y=\"" << pos_.y <<"\" ";
+    out << "<text"sv;
+    RenderAttrs(context.out);
+    out << " x=\"" << pos_.x <<"\" y=\"" << pos_.y <<"\" ";
     out << "dx=\"" << offset_.x <<"\" dy=\"" << offset_.y <<"\"";
     //font-size="12" font-family="Verdana" font-weight="bold"
     if(size_ > 0 ){
@@ -88,7 +89,7 @@ void Text::RenderObject(const RenderContext &context) const
     if(font_weight_.length() > 0  ){
         out << " font-weight=\"" << font_weight_ << "\"";
     }
-    RenderAttrs(context.out);
+
     out << ">"sv;
     out << format_data(data_);
     out << "</text>"sv;
