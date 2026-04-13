@@ -55,12 +55,8 @@ const std::set<std::string_view> TransportCatalogue::GetBusesByStopName(std::str
 
 }
 
-const std::map<std::string_view, Bus> TransportCatalogue::GetAllBus() const {
-    std::map<std::string_view, Bus> all_buses;
-    for(const Bus & bus :buses_){
-        all_buses.insert({bus.name,bus});
-    }
-    return all_buses;
+const std::deque<Bus> TransportCatalogue::GetAllBuses() const {
+    return buses_;
 }
 /*
 std::optional<BusStat> TransportCatalogue::GetBusStat(std::string_view name) const {

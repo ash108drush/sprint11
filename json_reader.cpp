@@ -172,7 +172,6 @@ void JsonReader::SetRenderSettings(json::Node nodes){
                 render_settings.bus_label_font_size = value.AsInt();
             }
             if(key == "bus_label_offset" ){
-                //std::pair<double,double>
                 if(value.IsArray()){
                     render_settings.bus_label_offset = {value.AsArray()[0].AsDouble(),value.AsArray()[1].AsDouble()};
                 }

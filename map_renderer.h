@@ -11,6 +11,7 @@
 #include <iostream>
 #include <optional>
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include "domain.h"
 
@@ -50,13 +51,11 @@ public:
         render_settings_ = render_settings;
 
     }
-    void RenderMap();
+    void RenderMap(std::map<std::string_view,std::vector<const domain::Stop *>> bus_stops);
 private:
     std::string StringToRgb(std::string color_str);
     void VectorStringToRgb(std::vector<std::string>& color_vec);
     RenderSettings render_settings_;
-    std::vector<geo::Coordinates> geo_coords_;
-    std::vector<std::pair<std::string_view,const domain::Stop*>> route_points_;
     std::ostream& out_;
 
 

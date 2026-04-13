@@ -81,35 +81,33 @@ std::optional<std::set<std::string_view> > RequestHandler::GetStopInfo(std::stri
     return db_.GetBusesByStopName(name);
 }
 
-const std::map<std::string_view, Bus> RequestHandler::GetAllBus() const
-{
-    return db_.GetAllBus();
-}
 
 void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_) const {
-
-    const std::map<std::string_view, Bus> all_buses = GetAllBus();
-    const Stop * stop = nullptr;
-    for(const auto &[name,bus] : all_buses){
-        std::vector<const Stop *> round;
-        if(bus.stops.size() == 0) continue;
+    const std::deque<Bus> all_buses_deq = db_.GetAllBuses();
+    std::map<std::string_view,std::vector<const Stop *>> bus_stops;
+    for(const auto &bus: all_buses_deq){
+        std::vector<const Stop *> stops;
         for(auto iter = bus.stops.begin(); iter != bus.stops.end(); ++iter){
-            stop = db_.FindBusStopByName(*iter);
+            const Stop * stop = db_.FindBusStopByName(*iter);
             if(stop != nullptr){
-               map_renderer_.AddRoute(name,stop);
-                round.push_back(stop);
+                stops.push_back(stop);
             }
         }
         if(!bus.is_roundtrip){
-            for(auto iter = round.rbegin()+1; iter != round.rend();++iter){
-                map_renderer_.AddRoute(name,*iter);
+            for(auto iter = bus.stops.rbegin()+1; iter != bus.stops.rend();++iter){
+                const Stop * stop = db_.FindBusStopByName(*iter);
+                if(stop != nullptr){
+                    stops.push_back(stop);
+                }
             }
         }
+        if(stops.size() >0){
+            bus_stops.insert({bus.name,stops});
+
+        }
+
     }
 
+    map_renderer_.RenderMap(bus_stops);
 
-
-    map_renderer_.RenderMap();
-
-   // return main::BusStat{stops_on_route,uniq_stops,route_distance, curve};
 }
