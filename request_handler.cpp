@@ -84,7 +84,7 @@ std::optional<std::set<std::string_view> > RequestHandler::GetStopInfo(std::stri
 
 void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_) const {
     const std::deque<Bus> all_buses_deq = db_.GetAllBuses();
-    std::map<std::string_view,std::vector<const Stop *>> bus_stops;
+    std::map<std::string_view,std::pair<std::vector<const Stop *>,bool>> bus_stops;
     for(const auto &bus: all_buses_deq){
         std::vector<const Stop *> stops;
         for(auto iter = bus.stops.begin(); iter != bus.stops.end(); ++iter){
@@ -101,8 +101,9 @@ void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_) const {
                 }
             }
         }
+
         if(stops.size() >0){
-            bus_stops.insert({bus.name,stops});
+            bus_stops.insert({bus.name,{stops,bus.is_roundtrip}});
 
         }
 

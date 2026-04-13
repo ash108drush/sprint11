@@ -44,6 +44,7 @@ inline bool IsZero(double value) {
 }
 
 class MapRenderer{
+    using StopsMap = std::map<std::string_view,std::pair<std::vector<const domain::Stop *>,bool>>;
 public:
     MapRenderer(std::ostream& out):out_(out){};
     void AddRoute(std::string_view name,const domain::Stop* stop);
@@ -51,8 +52,18 @@ public:
         render_settings_ = render_settings;
 
     }
-    void RenderMap(std::map<std::string_view,std::vector<const domain::Stop *>> bus_stops);
+    void RenderMap(StopsMap bus_stops);
 private:
+    void RenderPolylines(const StopsMap &bus_stops,
+                         const std::vector<std::string>& color_palette,
+                         const SphereProjector& proj,
+                         svg::Document& doc);
+
+    void RenderRouteNames(const StopsMap &bus_stops,
+                         const std::vector<std::string>& color_palette,
+                         const SphereProjector& proj,
+                         svg::Document& doc);
+
     std::string StringToRgb(std::string color_str);
     void VectorStringToRgb(std::vector<std::string>& color_vec);
     RenderSettings render_settings_;
