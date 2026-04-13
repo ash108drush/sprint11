@@ -2,6 +2,7 @@
 #include "domain.h"
 #include "map_renderer.h"
 #include "geo.h"
+#include <iomanip>
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
@@ -129,7 +130,10 @@ std::string JsonReader::ArrayToString(json::Array node) {
         if(node_str.IsInt()){
             colors.push_back(std::to_string(node_str.AsInt()));
         }else if(node_str.IsDouble()){
-            colors.push_back(std::to_string(node_str.AsDouble()));
+            std::stringstream ss;
+            ss << std::setprecision(6);
+            ss << node_str.AsDouble();
+            colors.push_back(ss.str());
         }
     }
     if(colors.size() == 3){
