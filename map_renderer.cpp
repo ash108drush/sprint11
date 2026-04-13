@@ -40,19 +40,36 @@ void MapRenderer::RenderRouteNames(const StopsMap & bus_stops,
                                   svg::Document& doc){
     int color_index = 0;
     for(auto const &[bus_name, bus_data] :bus_stops){
-        svg::Polyline poly_line = svg::Polyline();
-        poly_line.SetFillColor("none");
-        poly_line.SetStrokeWidth(render_settings_.line_width);
-        poly_line.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
-        poly_line.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
-        poly_line.SetStrokeColor(color_palette[color_index % color_palette.size()]);
+        svg::Text text = svg::Text();
+        svg::Text text_underlayer = svg::Text();
+
+        text.SetFontSize(render_settings_.bus_label_font_size);
+        text_underlayer.SetFontSize(render_settings_.bus_label_font_size);
+        text.SetFontFamily("Verdana");
+        text_underlayer.SetFontFamily("Verdana");
+        text.SetFontWeight("bold");
+        text_underlayer.SetFontWeight("bold");
+
+        text_underlayer.SetFillColor(render_settings_.underlayer_color);
+        text_underlayer.SetStrokeColor(render_settings_.underlayer_color);
+        text_underlayer.SetStrokeWidth(render_settings_.underlayer_width);
+        text_underlayer.SetStrokeLineCap(svg::StrokeLineCap::ROUND);
+        text_underlayer.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+
+        text.SetFillColor(color_palette[color_index % color_palette.size()]);
+
 
         for(auto const &stop: bus_data.first){
-            poly_line.AddPoint(proj(stop->coordinates));
+            text_underlayer.SetPosition();
+            text_underlayer.SetOffset();
+            text.SetPosition();
+            text.SetOffset();
+
         }
 
         if(bus_data.first.size()  >0 ) {
-            doc.Add(poly_line);
+            doc.Add(text_underlayer);
+            doc.Add(text);
             ++color_index;
         }
     }
