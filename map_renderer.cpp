@@ -36,10 +36,7 @@ void MapRenderer::RenderMap(StopsMap  bus_stops){
     RenderRouteNames(bus_stops, color_palette, proj, doc);
     std::map<std::string_view,geo::Coordinates> stops_map = RenderRouteCircles(bus_stops,proj,doc);
     RenderStopNames(stops_map, proj, doc);
-
-
     doc.Render(out_);
-
 }
 
 void MapRenderer::RenderRouteNames(const StopsMap & bus_stops,

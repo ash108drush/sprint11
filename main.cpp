@@ -41,8 +41,8 @@ int main() {
     json::Document  doc = json::Load(in);
     transport_catalogue::main::TransportCatalogue tc;
     RequestHandler rh(tc);
-    MapRenderer map_renderer(outsvg);
-    JsonReader json_reader(doc, tc, rh, map_renderer,out);
+
+    JsonReader json_reader(doc, tc, rh, out);
 
 
 /*

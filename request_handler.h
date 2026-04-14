@@ -11,7 +11,7 @@ public:
     // Возвращает информацию о маршруте (запрос Bus)
     std::optional<main::BusStat> GetBusStat(const std::string_view name) const;
     std::optional<std::set<std::string_view>> GetStopInfo(std::string_view name) const;
-    void DrawBusRoute(MapRenderer& map_renderer_) const;
+    void DrawBusRoute(std::unique_ptr<MapRenderer>&& map_renderer_ptr) const;
 
 
 private:

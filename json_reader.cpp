@@ -69,6 +69,9 @@ void JsonReader::MakeStatRequests(json::Node nodes){
                   auto iter = dict.find("type");
                   if(!iter->second.IsString()) return;
                   std::string type = iter->second.AsString();
+                  if(type == "Map"){
+                      MakeMapStatRequest(dict);
+                  }
                   if(type == "Stop"){
                       MakeStopStatRequest(dict);
                   }
@@ -121,6 +124,25 @@ void JsonReader::MakeBusStatRequest(const json::Dict &dict){
     }else{
         stat_.push_back(Request{id,nullptr});
     }
+}
+
+void JsonReader::MakeMapStatRequest(const json::Dict &dict){
+    int id = 0;
+    for(const auto &[key,value]: dict){
+        if(key == "id"){
+            id = value.AsInt();
+        }
+    }
+
+    map_renderer_ptr_->SetRenderSettings(render_settings_);
+    rh_.DrawBusRoute(std::move(map_renderer_ptr_));
+    std::istringstream iss(oss_.str());
+    std::string input_str = oss_.str();
+    oss_.clear();
+    oss_.str("");
+    json::PrintValue(input_str, oss_);
+    Request new_request{id,oss_.str()};
+    stat_.push_back(new_request);
 }
 
 std::string JsonReader::ArrayToString(json::Array node) {
@@ -216,9 +238,7 @@ void JsonReader::SetRenderSettings(json::Node nodes){
         }
     }
 
-    map_renderer_.SetRenderSettings(render_settings);
-    rh_.DrawBusRoute(map_renderer_);
-
+    render_settings_ = render_settings;
 }
 
 
@@ -256,7 +276,11 @@ struct VariantPrinter {
             out << "\"buses\": []," << std::endl;
             out << "\"request_id\": " <<  key  << std::endl;
         }
+    }
 
+    void operator()(std::string map_str) const {
+        out << "\"map\": " << map_str << ","<< std::endl;
+        out << "\"request_id\": " <<  key  << std::endl;
 
     }
 };

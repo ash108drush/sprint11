@@ -6,7 +6,7 @@ using namespace std;
 
 namespace json {
 
-namespace {
+namespace detail{
 
 Node LoadNode(istream& input);
 
@@ -316,7 +316,7 @@ const Node& Document::GetRoot() const {
 }
 
 Document Load(istream& input) {
-    return Document{LoadNode(input)};
+    return Document{detail::LoadNode(input)};
 }
 
 void PrintNode(const Node& node, std::ostream& out);

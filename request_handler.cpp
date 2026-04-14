@@ -82,7 +82,7 @@ std::optional<std::set<std::string_view> > RequestHandler::GetStopInfo(std::stri
 }
 
 
-void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_) const {
+void  RequestHandler::DrawBusRoute(std::unique_ptr<MapRenderer>&& map_renderer_ptr) const {
     const std::deque<Bus> all_buses_deq = db_.GetAllBuses();
     std::map<std::string_view,BusRoute> bus_stops;
     const Stop * last_stop = nullptr;
@@ -112,6 +112,6 @@ void RequestHandler::DrawBusRoute(MapRenderer& map_renderer_) const {
 
     }
 
-    map_renderer_.RenderMap(bus_stops);
+   map_renderer_ptr->RenderMap(bus_stops);
 
 }

@@ -102,6 +102,7 @@ private:
 
 Document Load(std::istream& input);
 
+
 void Print(const Document& doc, std::ostream& output);
 
 
@@ -129,5 +130,9 @@ inline bool operator==(const Document &d1,const Document &d2){
 inline bool operator!=(const Document &d1,const Document d2){
     return !(d1 == d2);
 }
+
+void PrintValue(const std::string value, std::ostream& out);
+
+
 
 }  // namespace json
