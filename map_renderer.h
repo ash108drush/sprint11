@@ -18,7 +18,6 @@
 namespace transport_catalogue {
 using namespace svg;
 
-
 class SphereProjector;
 
 struct RenderSettings{
@@ -34,9 +33,7 @@ struct RenderSettings{
     Color underlayer_color = "[255, 255, 255, 0.85]";
     double underlayer_width = 3.0;
     std::vector<Color> color_palette = {"green","[255, 160, 0]","red"};
-
 };
-
 
 inline const double EPSILON = 1e-6;
 inline bool IsZero(double value) {
@@ -50,7 +47,6 @@ public:
     void AddRoute(std::string_view name,const domain::Stop* stop);
     void SetRenderSettings(RenderSettings render_settings ){
         render_settings_ = render_settings;
-
     }
     void RenderMap(StopsMap bus_stops);
 private:
@@ -72,19 +68,11 @@ private:
                           const SphereProjector& proj,
                           svg::Document& doc);
 
-
     std::string StringToRgb(std::string color_str);
     void VectorStringToRgb(std::vector<std::string>& color_vec);
     RenderSettings render_settings_;
     std::ostream& out_;
-
-
 };
-
-
-
-
-
 
 class SphereProjector {
 public:
@@ -92,8 +80,7 @@ public:
     template <typename PointInputIt>
     SphereProjector(PointInputIt points_begin, PointInputIt points_end,
                     double max_width, double max_height, double padding)
-        : padding_(padding) //
-    {
+        : padding_(padding) {
         // Если точки поверхности сферы не заданы, вычислять нечего
         if (points_begin == points_end) {
             return;

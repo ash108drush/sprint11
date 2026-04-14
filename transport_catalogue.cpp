@@ -1,6 +1,5 @@
 #include "transport_catalogue.h"
 
-#include <iostream>
 #include<algorithm>
 #include <cassert>
 #include "geo.h"
@@ -58,49 +57,7 @@ const std::set<std::string_view> TransportCatalogue::GetBusesByStopName(std::str
 const std::deque<Bus> TransportCatalogue::GetAllBuses() const {
     return buses_;
 }
-/*
-std::optional<BusStat> TransportCatalogue::GetBusStat(std::string_view name) const {
-    const Bus* bus = FindRouteByName(name);
-    if(bus == nullptr){
-        return std::nullopt;
-    }
-    int stops_on_route = bus->stops.size();
-    std::unordered_set<std::string_view> bus_set;
-    const Stop * stop1 = nullptr;
-    const Stop * stop2 = nullptr;
-    bool flagfirst= true;
-    double route_distance=0;
-    double geo_route_distance=0;
-    double stop_distance=0;
-    for(std::string_view stop_name : bus->stops){
-        bus_set.insert(stop_name);
-        stop1 = stop2;
-        stop2 = FindBusStopByName(stop_name);
-        if(flagfirst){
-            flagfirst = false;
-            continue;
-        }
-        if(stop1 != nullptr && stop2 != nullptr){
-            std::optional<double> real_dist = RealDistanceCalculator(stop1,stop2);
-            if(real_dist.has_value()){
-                stop_distance = real_dist.value();
-            }else{
-                stop_distance = geo::ComputeDistance(stop1->coordinates, stop2->coordinates);
-            }
 
-            geo_route_distance += geo::ComputeDistance(stop1->coordinates, stop2->coordinates);
-            route_distance += stop_distance;
-        }else{
-            if(stop1 == nullptr){ assert("stop1 nullptr");}
-            if(stop2 == nullptr){ assert("stop2 nullptr");}
-        }
-    }
-    int uniq_stops = bus_set.size();
-    double curve = route_distance / geo_route_distance;
-    return BusStat{stops_on_route,uniq_stops,route_distance, curve};
-}
-
-*/
 double TransportCatalogue::GetDistance(std::pair<Stop *, Stop *> point) {
     return geo::ComputeDistance(point.first->coordinates,point.second->coordinates);
 }
@@ -115,20 +72,6 @@ std::optional<double> TransportCatalogue::RealDistanceCalculator(const Stop* sto
     }
     return iter->second;
 }
-/*
-std::optional<std::set<std::string_view>> TransportCatalogue::GetStopInfo(std::string_view name) const {
-    const Stop* stop = FindBusStopByName(name);
-    if(stop == nullptr){
-        return std::nullopt;
-    }
-    std::set<std::string_view> stops={};
-    auto iter = stopname_to_bus_list_.find(name);
-    if(iter != stopname_to_bus_list_.end()){
-        stops = (iter->second);
-    }
-    return stops;
-}
-*/
 
-}
+} //end namespace main
 } // end namespace

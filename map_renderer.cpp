@@ -2,14 +2,7 @@
 #include <iostream>
 #include <vector>
 
-/*
- * В этом файле вы можете разместить код, отвечающий за визуализацию карты маршрутов в формате SVG.
- * Визуализация маршртутов вам понадобится во второй части итогового проекта.
- * Пока можете оставить файл пустым.
- */
 namespace transport_catalogue {
-
-
 
 void MapRenderer::RenderMap(StopsMap  bus_stops){
     std::vector<geo::Coordinates> geo_coords;
@@ -67,8 +60,6 @@ void MapRenderer::RenderRouteNames(const StopsMap & bus_stops,
         text_underlayer.SetFontWeight("bold");
         text.SetData(static_cast<std::string>(bus_name));
         text_underlayer.SetData(static_cast<std::string>(bus_name));
-
-
 
         if(bus_data.is_roundtrip){
             Point p = proj(bus_data.stops[0]->coordinates);
@@ -129,8 +120,7 @@ void MapRenderer::RenderStopNames(const std::map<std::string_view,geo::Coordinat
         text_underlayer.SetFontSize(render_settings_.stop_label_font_size);
         text.SetFontFamily("Verdana");
         text_underlayer.SetFontFamily("Verdana");
-        //text.SetFontWeight("bold");
-        //text_underlayer.SetFontWeight("bold");
+
         text.SetData(static_cast<std::string>(stop_name));
         text_underlayer.SetData(static_cast<std::string>(stop_name));
 
@@ -170,11 +160,8 @@ void MapRenderer::RenderPolylines(const StopsMap & bus_stops,
 
         doc.Add(poly_line);
         ++color_index;
-
     }
-
 }
-
 
 void MapRenderer::VectorStringToRgb(std::vector<Color> &color_palette){
     for(auto iter = color_palette.begin(); iter != color_palette.end();++iter){
@@ -204,8 +191,5 @@ std::string MapRenderer::StringToRgb(std::string color_str){
 
     return color_str;
 }
-
-
-
 
 }//end namespace

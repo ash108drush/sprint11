@@ -1,17 +1,13 @@
 #pragma once
-
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 #include <variant>
-#include <iomanip>
-
 
 namespace json {
 using namespace std::literals;
 class Node;
-// Сохраните объявления Dict и Array без изменения
 using Dict = std::map<std::string, Node>;
 using Array = std::vector<Node>;
 
@@ -26,11 +22,10 @@ class Node {
 public:
     using Value = std::variant<std::nullptr_t, int, double, std::string,bool,Array,Dict>;
 
-    const Value& GetValue() const { return value_; }
-
-
+    const Value& GetValue() const {
+        return value_;
+    }
     Node(Value value):value_(value){};
-
     Node() = default;
     Node(std::nullptr_t) {};
     Node(Dict value) : value_(value) {};
@@ -98,13 +93,9 @@ private:
     Node root_;
 };
 
-
-
 Document Load(std::istream& input);
 
-
 void Print(const Document& doc, std::ostream& output);
-
 
 struct PrintContext {
     std::ostream& out;
@@ -117,7 +108,6 @@ struct PrintContext {
         }
     }
 
-    // Возвращает новый контекст вывода с увеличенным смещением
     PrintContext Indented() const {
         return {out, indent_step, indent_step + indent};
     }
@@ -127,12 +117,12 @@ struct PrintContext {
 inline bool operator==(const Document &d1,const Document &d2){
     return d1.GetRoot() == d2.GetRoot();
 }
+
 inline bool operator!=(const Document &d1,const Document d2){
     return !(d1 == d2);
 }
 
 void PrintValue(const std::string value, std::ostream& out);
-
 
 
 }  // namespace json

@@ -1,13 +1,7 @@
 #include "request_handler.h"
 #include <cassert>
-#include <iostream>
-/*
- * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
- * хотелось бы помещать ни в transport_catalogue, ни в json reader.
- *
- * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
- * можете оставить его пустым.
- */
+#include<unordered_set>
+
 using namespace transport_catalogue;
 std::optional<main::BusStat> RequestHandler::GetBusStat(const std::string_view name) const{
     const Bus* bus = db_.FindRouteByName(name);

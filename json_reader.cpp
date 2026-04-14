@@ -3,12 +3,8 @@
 #include "map_renderer.h"
 #include "geo.h"
 #include <iomanip>
-/*
- * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
- * а также код обработки запросов к базе и формирование массива ответов в формате JSON
- */
- namespace transport_catalogue {
 
+ namespace transport_catalogue {
 
  void JsonReader::MakeBaseRequests(json::Node nodes){
     if(nodes.IsArray()){

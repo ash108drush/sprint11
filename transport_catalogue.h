@@ -1,14 +1,9 @@
 #pragma once
 #include <unordered_map>
-#include <unordered_set>
 #include <deque>
 #include <string_view>
-#include <vector>
-#include <string>
 #include<optional>
 #include <set>
-#include <map>
-#include <memory>
 #include "geo.h"
 #include "domain.h"
 
@@ -31,15 +26,10 @@ public:
     const Stop* FindBusStopByName(std::string_view name) const;
     const std::set<std::string_view> GetBusesByStopName(std::string_view name) const;
     const std::deque<Bus> GetAllBuses() const;
-
-
- //   const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;
     double GetDistance(std::pair<Stop *, Stop *>);
     std::optional<double> RealDistanceCalculator(const Stop*,const Stop*) const;
 
 private:
-
-
     struct PairHasher {
         size_t operator()(const std::pair<const Stop*, const Stop*>& stop)  const {
             std::size_t h1 = std::hash<const Stop*>{}(stop.first);
@@ -59,5 +49,5 @@ private:
 
 };
 
-}
+} // end namespace main
 } //end namespace

@@ -2,18 +2,13 @@
 #include "json.h"
 #include <iostream>
 #include <string>
-#include <fstream>
 #include "json.h"
 #include "json_reader.h"
 #include "request_handler.h"
 #include <sstream>
 #include <cassert>
 #include "map_renderer.h"
-//    MapRenderer map_renderer(outsvg);
-/*
- * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
- * а также код обработки запросов к базе и формирование массива ответов в формате JSON
- */
+
 namespace transport_catalogue {
 class JsonReader{
 public:
@@ -76,4 +71,5 @@ private:
     std::ostringstream oss_;
 
 };
-}
+
+} //end namespace

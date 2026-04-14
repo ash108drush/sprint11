@@ -132,17 +132,10 @@ private:
 
 class ObjectContainer{
 public:
-    //
-   // template <typename Obj>
-   // void Add(Obj obj) {
-    //   AddPtr(std::move((std::make_unique<Obj>(std::move(obj)))));
-       // AddPtr(std::unique_ptr<Obj>(std::make_unique<Obj>(std::move(obj))));
-    //}
     template <typename ObjectType>
     void Add(ObjectType object) {
         AddPtr(std::make_unique<ObjectType>(std::move(object)));
     }
-
     virtual void AddPtr(std::unique_ptr<Object>&& obj) = 0;
     virtual ~ObjectContainer() = default;
 
@@ -209,7 +202,6 @@ public:
 private:
     virtual void RenderObject(const RenderContext& context) const = 0;
 };
-
 
 
 /*
@@ -302,23 +294,7 @@ private:
 
 class Document :public ObjectContainer{
 public:
-    /*
-     Метод Add добавляет в svg-документ любой объект-наследник svg::Object.
-     Пример использования:
-     Document doc;
-     doc.Add(Circle().SetCenter({20, 30}).SetRadius(15));
-    */
-    //
-    /*
-    template <typename Obj>
-    Document& Add(Obj obj) {
-        objects_.emplace_back(std::make_unique<Obj>(std::move(obj)));
-        return *this;
-    }
-*/
-
     // Добавляет в svg-документ объект-наследник svg::Object
-
     void AddPtr(std::unique_ptr<Object>&& obj) override{
         objects_.push_back(std::move(obj));
     }
@@ -353,13 +329,12 @@ public:
 private:
     svg::Point p1_, p2_, p3_;
 };
-//(Point{50.0, 20.0}, 10.0, 4.0, 5))
+
 class Star : public svg::Drawable, public svg::PathProps<Star>  {
 public:
     Star(svg::Point  center, double outer_rad, double inner_rad, int num_rays):center_(center),
         outer_rad_(outer_rad),inner_rad_(inner_rad),num_rays_(num_rays) {
     }
-
     void Draw(svg::ObjectContainer& container) const override {
         container.Add(CreateStar());
     }
@@ -398,16 +373,12 @@ public:
         for(const auto& ball:snowman_){
             container.Add(ball);
         }
-
     }
 
 private:
     std::vector<svg::Circle> snowman_;
-
     svg::Point  center_;
     double head_radius_;
-
-
 };
 
 } // namespace shapes

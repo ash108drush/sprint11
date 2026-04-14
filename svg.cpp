@@ -6,7 +6,6 @@ using namespace std::literals;
 
 void Object::Render(const RenderContext& context) const {
     context.RenderIndent();
-
     // Делегируем вывод тега своим подклассам
     RenderObject(context);
 
@@ -130,7 +129,6 @@ std::string Text::format_data(std::string_view data) const{
         find_pos = data.find_first_of(needle,pos);
     }
     result += std::string(data.substr(pos,data.size() - pos));
-    //assert(result == "<text>Hello, &lt;UserName&gt;. Would you like some &quot;M&amp;M&apos;s&quot;?</text>");
     return result;
 }
 

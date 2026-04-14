@@ -12,7 +12,6 @@ Node LoadNode(istream& input);
 
 Node LoadArray(istream& input) {
     Array result;
-
     for (char c; input >> c && c != ']';) {
         if (c != ',') {
             input.putback(c);
@@ -160,9 +159,6 @@ Node LoadNodeString(istream& input) {
     return Node(std::move(line));
 }
 
-
-
-
 Node LoadDict(istream& input) {
     Dict result;
 
@@ -249,15 +245,9 @@ Node LoadNode(istream& input) {
     }
 
     throw ParsingError("Unknown character parsing error!");
-
 }
 
-
-
-}  // namespace
-
-
-
+}  // end namespace detail
 
 const Array& Node::AsArray() const {
     if (IsArray()) {
@@ -273,7 +263,6 @@ const Dict& Node::AsMap() const {
     throw std::logic_error("Not <Map> value!");
 
 }
-
 
 int Node::AsInt() const {
     if (IsInt()) {
@@ -331,7 +320,6 @@ void PrintValue(const Value& value, std::ostream& out) {
     out << value;
 }
 
-//std::string,bool,Array,Dict
 void PrintValue(const std::string value, std::ostream& out) {
     using namespace std::literals;
     out << "\""sv;
@@ -385,7 +373,6 @@ void PrintValue(const Array value, std::ostream& out) {
     return;
 };
 
-//std::map<std::string, Node>;
 void PrintValue(const Dict value, std::ostream& out) {
     out << "{";
     bool first = true;
@@ -404,13 +391,6 @@ void PrintValue(const Dict value, std::ostream& out) {
     return;
 };
 
-// Шаблон, подходящий для вывода double и int
-//template <typename Value>
-//void PrintValue(const Value& value, std::ostream& out) {
-//    out << static_cast<Value>(value);
-//}
-
-// Другие перегрузки функции PrintValue пишутся аналогично
 
 void PrintNode(const Node& node, std::ostream& out) {
     std::visit(
@@ -421,9 +401,6 @@ void PrintNode(const Node& node, std::ostream& out) {
 void Print(const Document& doc, std::ostream& output) {
     Node root_node = doc.GetRoot();
     PrintNode(root_node,output);
-    //(void) &output;
-
-    // Реализуйте функцию самостоятельно
 }
 
 }  // namespace json
