@@ -25,7 +25,7 @@ Node LoadArray(istream& input) {
     return Node(std::move(result));
 }
 
-using Number = std::variant<int, double>;
+
 
 Number LoadNumber(std::istream& input) {
     using namespace std::literals;

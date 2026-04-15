@@ -38,7 +38,6 @@ void MapRenderer::RenderRouteNames(const StopsMap & bus_stops,
                                   svg::Document& doc){
     int color_index = 0;
 
-
     for(auto const &[bus_name, bus_data] :bus_stops){
         svg::Text text = svg::Text();
         svg::Text text_underlayer = svg::Text();

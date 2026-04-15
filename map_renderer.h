@@ -44,8 +44,7 @@ class MapRenderer{
     using StopsMap = std::map<std::string_view,domain::BusRoute>;
 public:
     MapRenderer(std::ostream& out):out_(out){};
-    void AddRoute(std::string_view name,const domain::Stop* stop);
-    void SetRenderSettings(RenderSettings render_settings ){
+    void SetRenderSettings(RenderSettings& render_settings ){
         render_settings_ = render_settings;
     }
     void RenderMap(StopsMap bus_stops);

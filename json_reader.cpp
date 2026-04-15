@@ -5,7 +5,7 @@
 #include <iomanip>
 
  namespace transport_catalogue {
-
+using namespace std::literals;
  void JsonReader::MakeBaseRequests(json::Node nodes){
     if(nodes.IsArray()){
         for(const json::Node& node : nodes.AsArray()){
@@ -93,7 +93,7 @@ void JsonReader::MakeStopStatRequest(const json::Dict &dict){
         }
     }
 
-    std::optional<std::set<std::string_view>> stop_info = rh_.GetStopInfo(name);
+    std::optional<std::set<std::string_view>> stop_info = db_.GetStopInfo(name);
     if(stop_info.has_value()){
         Request new_request{id,stop_info.value()};
         stat_.push_back(new_request);
@@ -113,7 +113,7 @@ void JsonReader::MakeBusStatRequest(const json::Dict &dict){
             id = value.AsInt();
         }
     }
-    std::optional<main::BusStat> bus_stat = rh_.GetBusStat(name);
+    std::optional<main::BusStat> bus_stat = db_.GetBusStat(name);
     if(bus_stat.has_value()){
         Request new_request{id,bus_stat.value()};
         stat_.push_back(new_request);
@@ -132,7 +132,6 @@ void JsonReader::MakeMapStatRequest(const json::Dict &dict){
 
     map_renderer_ptr_->SetRenderSettings(render_settings_);
     rh_.DrawBusRoute(std::move(map_renderer_ptr_));
-    std::istringstream iss(oss_.str());
     std::string input_str = oss_.str();
     oss_.clear();
     oss_.str("");
@@ -239,21 +238,35 @@ void JsonReader::SetRenderSettings(json::Node nodes){
 
 
 struct VariantPrinter {
-    std::ostream& out;
+    json::Array* arr_ptr;
     int key;
-    void operator()(std::nullptr_t) const {
-         out << "\"request_id\": " <<  key  << ","<< std::endl;
-        out << "\"error_message\": \"not found\"" << std::endl;
+    void operator()(std::nullptr_t)  {
+       // json::Dict dict = json::Dict{ std::string("request_id"), json::Node(key)};
+       // json::Dict{ "error_message","not found"};
+         json::Node dict_node{json::Dict{{"request_id"s, key}, {"error_message"s, "not found"}}};
+         arr_ptr->push_back(dict_node);
     }
 
-    void operator()(main::BusStat bus_stat) const {
+    void operator()(main::BusStat bus_stat) {
+        json::Node dict_node{json::Dict{{"curvature"s, bus_stat.curvature},
+                                        {"request_id"s, key},
+                                        {"route_length"s, bus_stat.route_length},
+                                        {"stop_count"s, bus_stat.stops_on_route},
+                                        {"unique_stop_count"s, bus_stat.uniq_stops_on_route}
+                                        }};
+        arr_ptr->push_back(dict_node);
+        /*
         out << "\"curvature\": " << bus_stat.curvature << ","<< std::endl;
         out << "\"request_id\": " <<  key  << ","<< std::endl;
         out << "\"route_length\": " << bus_stat.route_length <<"," << std::endl;
         out << "\"stop_count\": " << bus_stat.stops_on_route << ","<< std::endl;
         out << "\"unique_stop_count\": " << bus_stat.uniq_stops_on_route << std::endl;
+*/
     }
-    void operator()(std::set<std::string_view> stop_info) const {
+    void operator()(std::set<std::string_view> stop_info)  {
+        json::Node dict_node{json::Dict{{"buses"s, key}, {"request_id"s, key}}};
+        arr_ptr->push_back(dict_node);
+        /*
         if(stop_info.size() >0){
             out << "\"buses\": ";
             out << "[" ;
@@ -272,35 +285,39 @@ struct VariantPrinter {
             out << "\"buses\": []," << std::endl;
             out << "\"request_id\": " <<  key  << std::endl;
         }
+*/
     }
 
-    void operator()(std::string map_str) const {
-        out << "\"map\": " << map_str << ","<< std::endl;
-        out << "\"request_id\": " <<  key  << std::endl;
+    void operator()(std::string map_str)  {
+        json::Node dict_node{json::Dict{{"map"s, map_str}, {"request_id"s, key}}};
+        arr_ptr->push_back(dict_node);
+       // out << "\"map\": " << map_str << ","<< std::endl;
+       // out << "\"request_id\": " <<  key  << std::endl;
 
     }
 };
 
 void JsonReader::PrintStatRequests(){
+    std::ostringstream oss;
+    std::istringstream input;
+    json::Node root;
+    json::Array arr;
+    json::Array* arr_ptr= &arr;
+
+
 
     if(stat_.size() >0){
-        out_ << "["<< std::endl;
-        size_t i=0;
+
         for(auto &request : stat_){
-            out_ << "{" << std::endl;
-            std::visit(VariantPrinter{out_ ,request.id}, request.info);
 
-            ++i;
-            if(i < stat_.size()){
-                out_ <<"}," << std::endl;
-            }else{
-                out_ << "}" << std::endl;
-            }
+            std::visit(VariantPrinter{arr_ptr, request.id}, request.info);
 
-        }
-        out_ <<"]"<< std::endl;
     }
+   /// json::PrintValue(oss.str(),out_);
 
+    }
+    json::Document document = json::Document(json::Node(arr));
+    json::Print(document,out_);
 }
 
 

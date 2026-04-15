@@ -10,6 +10,7 @@ using namespace std::literals;
 class Node;
 using Dict = std::map<std::string, Node>;
 using Array = std::vector<Node>;
+using Number = std::variant<int, double>;
 
 // Эта ошибка должна выбрасываться при ошибках парсинга JSON
 class ParsingError : public std::runtime_error {
@@ -123,6 +124,11 @@ inline bool operator!=(const Document &d1,const Document d2){
 }
 
 void PrintValue(const std::string value, std::ostream& out);
+Node LoadNode(std::istream& input);
+Node LoadArray(std::istream& input);
+Number LoadNumber(std::istream& input);
+Node LoadDict(std::istream& input);
+Node LoadNodeString(std::istream& input);
 
 
 }  // namespace json

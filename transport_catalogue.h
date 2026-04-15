@@ -24,10 +24,14 @@ public:
     void AddStopDistance(std::string_view stop_name1,std::string_view stop_name2, double distance);
     const Bus* FindRouteByName(std::string_view name) const;
     const Stop* FindBusStopByName(std::string_view name) const;
+    /* не возвращает константную ссылку, так как функция возвращает копию локальной переменной */
     const std::set<std::string_view> GetBusesByStopName(std::string_view name) const;
-    const std::deque<Bus> GetAllBuses() const;
+    const std::deque<Bus>& GetAllBuses() const;
     double GetDistance(std::pair<Stop *, Stop *>);
     std::optional<double> RealDistanceCalculator(const Stop*,const Stop*) const;
+    std::optional<main::BusStat> GetBusStat(const std::string_view name) const;
+    std::optional<std::set<std::string_view>> GetStopInfo(std::string_view name) const;
+
 
 private:
     struct PairHasher {
